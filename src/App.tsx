@@ -18,6 +18,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import AdminNewsDetail from './pages/admin/NewsDetail';
 import ScrollToTop from './components/ScrollToTop';
 import Contact from './pages/Contact';
+import About from './pages/About';
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function StandardLayout() {
           <Route path="/news" element={<News />} />
           <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
           {/* Add a catch-all route to handle 404s */}
           <Route path="*" element={<NotFound />} />
         </Routes>

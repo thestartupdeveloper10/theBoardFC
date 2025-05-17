@@ -1,14 +1,11 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { MapPin, Phone, Mail, Clock, Users, Trophy, Heart, Target, Building2, ExternalLink, Calendar, Award, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { MapPin, Phone, Mail, Clock, Users, Trophy, Heart, Target, Building2, Handshake, ChevronDown, ChevronUp, ExternalLink, Info } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
-// Temporary data - will be replaced with Supabase data later
+// Simplified data structure
 const clubHistory = [
   {
     year: '1995',
@@ -71,465 +68,233 @@ const stadiumInfo = {
   ]
 }
 
-// Add more details to sponsors data
-const sponsors = [
+const keyPartners = [
   {
     name: 'TechCorp',
-    tier: 'Main Sponsor',
+    type: 'Main Sponsor',
     logo: 'https://placehold.co/200x100',
-    description: 'Leading technology solutions provider',
-    website: 'https://techcorp.example.com',
-    partnershipDetails: 'TechCorp provides cutting-edge technology solutions for our stadium operations and fan engagement platforms.',
-    benefits: [
-      'Smart stadium management system',
-      'Digital ticketing platform',
-      'Fan engagement mobile app',
-      'Data analytics dashboard'
-    ]
+    description: 'Leading technology solutions provider'
   },
   {
     name: 'SportsGear',
-    tier: 'Kit Sponsor',
+    type: 'Kit Sponsor',
     logo: 'https://placehold.co/200x100',
-    description: 'Official kit and equipment supplier',
-    website: 'https://sportsgear.example.com',
-    partnershipDetails: 'SportsGear equips our team with premium quality kits and training equipment.',
-    benefits: [
-      'Professional match kits',
-      'Training equipment',
-      'Fan merchandise',
-      'Youth academy gear'
-    ]
+    description: 'Official kit and equipment supplier'
   },
-  {
-    name: 'EnergyPlus',
-    tier: 'Official Partner',
-    logo: 'https://placehold.co/200x100',
-    description: 'Sustainable energy solutions',
-    website: 'https://energyplus.example.com',
-    partnershipDetails: 'EnergyPlus helps us maintain sustainable operations through renewable energy solutions.',
-    benefits: [
-      'Solar power installation',
-      'Energy efficiency systems',
-      'Green certification',
-      'Carbon footprint reduction'
-    ]
-  },
-  {
-    name: 'HealthFit',
-    tier: 'Official Partner',
-    logo: 'https://placehold.co/200x100',
-    description: 'Sports nutrition and wellness',
-    website: 'https://healthfit.example.com',
-    partnershipDetails: 'HealthFit provides comprehensive nutrition and wellness solutions for our players.',
-    benefits: [
-      'Custom nutrition plans',
-      'Supplementation program',
-      'Recovery protocols',
-      'Wellness monitoring'
-    ]
-  }
-]
-
-// Add more details to partners data
-const partners = [
   {
     name: 'City Youth Foundation',
     type: 'Community Partner',
     logo: 'https://placehold.co/150x150',
-    description: 'Supporting youth development programs',
-    website: 'https://youthfoundation.example.com',
-    impact: 'Over 1000 young people benefit from our joint programs annually.',
-    programs: [
-      'Youth football camps',
-      'Leadership workshops',
-      'Education support',
-      'Career guidance'
-    ]
+    description: 'Supporting youth development programs'
   },
   {
     name: 'Local Schools Network',
     type: 'Education Partner',
     logo: 'https://placehold.co/150x150',
-    description: 'Promoting sports in education',
-    website: 'https://schoolsnetwork.example.com',
-    impact: 'Partnering with 50+ schools to promote sports education.',
-    programs: [
-      'School sports programs',
-      'Teacher training',
-      'Equipment donations',
-      'Talent identification'
-    ]
-  },
-  {
-    name: 'Sports Academy',
-    type: 'Development Partner',
-    logo: 'https://placehold.co/150x150',
-    description: 'Talent development and training',
-    website: 'https://sportsacademy.example.com',
-    impact: 'Developing future stars through our comprehensive training programs.',
-    programs: [
-      'Elite training camps',
-      'Scouting network',
-      'Performance analysis',
-      'Career development'
-    ]
-  },
-  {
-    name: 'Charity Foundation',
-    type: 'Social Impact Partner',
-    logo: 'https://placehold.co/150x150',
-    description: 'Community outreach programs',
-    website: 'https://charityfoundation.example.com',
-    impact: 'Making a difference in our community through various initiatives.',
-    programs: [
-      'Food bank support',
-      'Housing assistance',
-      'Education grants',
-      'Health awareness'
-    ]
+    description: 'Promoting sports in education'
   }
 ]
 
-const ContactForm = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Contact Us</CardTitle>
-      <CardDescription>Send us a message and we'll get back to you as soon as possible.</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <form className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" placeholder="Your name" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="Your email" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="subject">Subject</Label>
-          <Input id="subject" placeholder="Message subject" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="message">Message</Label>
-          <Textarea id="message" placeholder="Your message" className="min-h-[150px]" />
-        </div>
-        <Button className="w-full">Send Message</Button>
-      </form>
-    </CardContent>
-  </Card>
-)
-
-const HistoryTimeline = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Club History</CardTitle>
-      <CardDescription>A journey through the years</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-8">
-        {clubHistory.map((event, index) => (
-          <motion.div
-            key={event.year}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="relative pl-8 border-l-2 border-primary"
-          >
-            <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary" />
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="font-bold">{event.year}</span>
-                <span className="text-lg font-semibold">{event.title}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">{event.description}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </CardContent>
-  </Card>
-)
-
-const ValuesSection = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Our Values</CardTitle>
-      <CardDescription>The principles that guide us</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {values.map((value, index) => (
-          <motion.div
-            key={value.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="flex items-start gap-4"
-          >
-            <value.icon className="w-6 h-6 text-primary mt-1" />
-            <div>
-              <h3 className="font-semibold">{value.title}</h3>
-              <p className="text-sm text-muted-foreground">{value.description}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </CardContent>
-  </Card>
-)
-
-const StadiumSection = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Our Stadium</CardTitle>
-      <CardDescription>{stadiumInfo.name}</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-primary" />
-            <span>{stadiumInfo.address}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-5 h-5 text-primary" />
-            <span>{stadiumInfo.phone}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-primary" />
-            <span>{stadiumInfo.email}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-primary" />
-            <span>{stadiumInfo.openingHours}</span>
-          </div>
-        </div>
-        <div>
-          <h3 className="font-semibold mb-2">Facilities</h3>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {stadiumInfo.facilities.map((facility, index) => (
-              <li key={index} className="flex items-center gap-2 text-sm">
-                <span className="text-primary">•</span>
-                {facility}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-)
-
-const SponsorsSection = () => {
-  const [expandedSponsor, setExpandedSponsor] = useState<string | null>(null)
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Our Sponsors</CardTitle>
-        <CardDescription>Proud partners supporting The Board FC</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {sponsors.map((sponsor, index) => (
-            <motion.div
-              key={sponsor.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group"
-            >
-              <div
-                className="flex items-center gap-6 p-4 rounded-lg border cursor-pointer hover:border-primary transition-colors"
-                onClick={() => setExpandedSponsor(expandedSponsor === sponsor.name ? null : sponsor.name)}
-              >
-                <div className="w-32 h-16 flex-shrink-0">
-                  <img
-                    src={sponsor.logo}
-                    alt={sponsor.name}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="flex-grow">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-primary" />
-                    <h3 className="font-semibold">{sponsor.name}</h3>
-                    <span className="text-sm text-muted-foreground">({sponsor.tier})</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">{sponsor.description}</p>
-                </div>
-                <motion.div
-                  animate={{ rotate: expandedSponsor === sponsor.name ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                </motion.div>
-              </div>
-
-              <AnimatePresence>
-                {expandedSponsor === sponsor.name && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 border-t space-y-4">
-                      <p className="text-sm">{sponsor.partnershipDetails}</p>
-                      <div>
-                        <h4 className="font-medium mb-2">Key Benefits</h4>
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {sponsor.benefits.map((benefit, idx) => (
-                            <li key={idx} className="flex items-center gap-2 text-sm">
-                              <span className="text-primary">•</span>
-                              {benefit}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={sponsor.website} target="_blank" rel="noopener noreferrer">
-                            Visit Website <ExternalLink className="w-4 h-4 ml-2" />
-                          </a>
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          Learn More <Info className="w-4 h-4 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-const PartnersSection = () => {
-  const [expandedPartner, setExpandedPartner] = useState<string | null>(null)
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Community Partners</CardTitle>
-        <CardDescription>Working together for a better community</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {partners.map((partner, index) => (
-            <motion.div
-              key={partner.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group"
-            >
-              <div
-                className="flex items-start gap-4 p-4 rounded-lg border cursor-pointer hover:border-primary transition-colors"
-                onClick={() => setExpandedPartner(expandedPartner === partner.name ? null : partner.name)}
-              >
-                <div className="w-16 h-16 flex-shrink-0">
-                  <img
-                    src={partner.logo}
-                    alt={partner.name}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="flex-grow">
-                  <div className="flex items-center gap-2">
-                    <Handshake className="w-4 h-4 text-primary" />
-                    <h3 className="font-semibold">{partner.name}</h3>
-                    <span className="text-sm text-muted-foreground">({partner.type})</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">{partner.description}</p>
-                </div>
-                <motion.div
-                  animate={{ rotate: expandedPartner === partner.name ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                </motion.div>
-              </div>
-
-              <AnimatePresence>
-                {expandedPartner === partner.name && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 border-t space-y-4">
-                      <p className="text-sm font-medium text-primary">{partner.impact}</p>
-                      <div>
-                        <h4 className="font-medium mb-2">Programs</h4>
-                        <ul className="space-y-2">
-                          {partner.programs.map((program, idx) => (
-                            <li key={idx} className="flex items-center gap-2 text-sm">
-                              <span className="text-primary">•</span>
-                              {program}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={partner.website} target="_blank" rel="noopener noreferrer">
-                            Visit Website <ExternalLink className="w-4 h-4 ml-2" />
-                          </a>
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          Get Involved <Users className="w-4 h-4 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
 export default function About() {
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-4 py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="max-w-3xl mx-auto mb-12 text-center"
       >
-        <h1 className="text-4xl font-bold mb-2">About The Board FC</h1>
-        <p className="text-muted-foreground">Learn about our history, values, and facilities.</p>
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Story</h1>
+        <p className="text-lg text-muted-foreground">
+          Founded in 1995, The Board FC has grown from a small local team to a community fixture, 
+          centered on our values of excellence, integrity, and innovation.
+        </p>
       </motion.div>
 
-      <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-8">
-            <HistoryTimeline />
-            <ValuesSection />
-            <PartnersSection />
-          </div>
-          <div className="space-y-8">
-            <StadiumSection />
-            <SponsorsSection />
-            <ContactForm />
-          </div>
-        </div>
-      </ScrollArea>
+      {/* Bento grid layout */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        {/* Club history - Large tile */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="md:col-span-2 overflow-hidden"
+        >
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                Our Journey
+              </CardTitle>
+              <CardDescription>From humble beginnings to where we are today</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {clubHistory.map((event, index) => (
+                  <motion.div
+                    key={event.year}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="relative pl-8 border-l-2 border-primary"
+                  >
+                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary" />
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-primary">{event.year}</span>
+                        <span className="text-lg font-semibold">{event.title}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{event.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Values - Small tile */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="h-full"
+        >
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-primary" />
+                Our Values
+              </CardTitle>
+              <CardDescription>The principles that guide us</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {values.map((value, index) => (
+                  <motion.div
+                    key={value.title}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.2 + (index * 0.1) }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="mt-0.5">
+                      <value.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">{value.title}</h3>
+                      <p className="text-xs text-muted-foreground">{value.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Stadium and Partners section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {/* Stadium info - Medium tile */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="md:col-span-1"
+        >
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-primary" />
+                Our Stadium
+              </CardTitle>
+              <CardDescription>Home of The Board FC</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-lg overflow-hidden mb-4 h-40">
+                <img 
+                  src="https://placehold.co/800x400" 
+                  alt="Stadium" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>{stadiumInfo.address}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>Capacity: {stadiumInfo.capacity}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span>{stadiumInfo.email}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Key partners - Large tile */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="md:col-span-2"
+        >
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                Partners & Sponsors
+              </CardTitle>
+              <CardDescription>The organizations that support our vision</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                {keyPartners.map((partner, index) => (
+                  <motion.div
+                    key={partner.name}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.3 + (index * 0.1) }}
+                    className="flex flex-col items-center text-center p-4 rounded-lg border bg-background/50 hover:bg-background/80 transition-colors"
+                  >
+                    <div className="w-16 h-16 flex-shrink-0 mb-3">
+                      <img
+                        src={partner.logo}
+                        alt={partner.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <h3 className="font-medium text-sm">{partner.name}</h3>
+                    <p className="text-xs text-muted-foreground">{partner.type}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* CTA section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="text-center mt-12"
+      >
+        <h2 className="text-2xl font-bold mb-4">Want to know more?</h2>
+        <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
+          Feel free to reach out to us with any questions or to learn more about our club.
+        </p>
+        <Button asChild size="lg">
+          <Link to="/contact">Contact Us</Link>
+        </Button>
+      </motion.div>
     </div>
   )
 } 

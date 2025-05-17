@@ -22,7 +22,8 @@ import {
   Calendar, 
   FileText, 
   Settings,
-  ChevronLeft
+  ChevronLeft,
+  MessageSquare
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import logo from '@/assets/images/logo.png';
@@ -139,6 +140,16 @@ export default function AdminHeader() {
             </div>
           </Link>
           
+          <Link 
+            to="/admin/dashboard?tab=contacts" 
+            className={`text-sm font-medium ${isActive('contacts') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            <div className="flex items-center gap-1">
+              <MessageSquare className="h-4 w-4" />
+              <span>Contacts</span>
+            </div>
+          </Link>
+          
           <Button 
             variant="ghost" 
             size="icon" 
@@ -244,6 +255,15 @@ export default function AdminHeader() {
             >
               <BarChart2 className="h-4 w-4" />
               <span>Stats</span>
+            </Link>
+            
+            <Link 
+              to="/admin/dashboard?tab=contacts"
+              className={`flex items-center gap-2 text-sm font-medium ${isActive('contacts') ? 'text-primary' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span>Contacts</span>
             </Link>
             
             <div className="pt-2 border-t">

@@ -216,7 +216,7 @@ export default function PlayerStats() {
                   <AvatarImage 
                     src={player.profile_image_url} 
                     alt={`${player.first_name} ${player.last_name}`} 
-                    className="object-cover align-top"
+                    className="object-cover object-top h-full w-full"
                   />
                 ) : (
                   <AvatarFallback className="bg-muted-foreground/10 text-4xl">

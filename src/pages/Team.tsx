@@ -13,6 +13,9 @@ import { Button } from '@/components/ui/button'
 import { usePlayers } from '@/services/queries'
 import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
+import elly from '@/assets/images/eli.jpg'
+import olunga from '@/assets/images/olunga.jpeg'
+import chris from '@/assets/images/chris.jpeg'
 
 const positions = ['All', 'Goalkeeper', 'Defender', 'Midfielder', 'Forward']
 
@@ -20,24 +23,31 @@ const positions = ['All', 'Goalkeeper', 'Defender', 'Midfielder', 'Forward']
 const staff = [
   {
     id: 1,
-    name: 'Michael Thompson',
+    name: 'Elly Chiaji',
     role: 'Head Coach',
-    image: 'https://placehold.co/400',
-    bio: 'Former professional player with over 15 years of coaching experience.'
+    image: elly,
+    bio: 'Professional coach with over 5 years of coaching experience.'
   },
   {
     id: 2,
-    name: 'Sarah Johnson',
+    name: 'Chris Nyayiera',
     role: 'Assistant Coach',
-    image: 'https://placehold.co/400',
+    image: chris,
     bio: 'UEFA Pro License holder specializing in tactical development.'
   },
   {
     id: 3,
-    name: 'Dr. Robert Chen',
+    name: 'Dr. Josephine Omosa',
     role: 'Team Doctor',
     image: 'https://placehold.co/400',
-    bio: 'Sports medicine specialist with 20 years experience in professional football.'
+    bio: 'Sports medicine specialist with 5 years experience in professional football.'
+  },
+  {
+    id: 4,
+    name: 'Dr. Brevin Olunga',
+    role: 'Team Doctor',
+    image: olunga,
+    bio: 'Sports medicine specialist with 3 years experience in professional football.'
   }
 ]
 
@@ -128,12 +138,12 @@ const PlayerCard = ({ player, onClick }: { player: Player, onClick: () => void }
             className="relative mb-4"
           >
             <div className={`absolute inset-0 rounded-full ${positionStyle.secondary} -m-2 animate-pulse`} />
-            <Avatar className="w-24 h-24 border-4 border-background">
+            <Avatar className="w-40 h-40 border-4 border-background">
               {player.profile_image_url ? (
                 <AvatarImage 
                   src={player.profile_image_url} 
                   alt={`${player.first_name} ${player.last_name}`} 
-                  className="object-cover"
+                  className="object-cover object-top h-full w-full"
                 />
               ) : (
                 <AvatarFallback className="bg-muted-foreground/10">
@@ -253,7 +263,7 @@ const PlayerDetailModal = ({ player, open, onOpenChange }: {
                       <AvatarImage 
                         src={player.profile_image_url} 
                         alt={`${player.first_name} ${player.last_name}`} 
-                        className="object-cover"
+                        className="object-cover object-top h-full w-full"
                       />
                     ) : (
                       <AvatarFallback className="bg-muted-foreground/10 text-xl sm:text-2xl md:text-3xl">
@@ -370,8 +380,8 @@ const StaffCard = ({ member }: { member: typeof staff[0] }) => (
       <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-primary to-primary-foreground opacity-80" />
       
       <div className="relative z-10 pt-12 px-6 pb-6 flex flex-col items-center">
-        <Avatar className="w-24 h-24 border-4 border-background mb-4">
-          <AvatarImage src={member.image} alt={member.name} />
+        <Avatar className="w-40 h-40 border-4 border-background mb-4">
+          <AvatarImage src={member.image} alt={member.name} className="object-cover h-40 w-40" />
           <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
         </Avatar>
         

@@ -13,9 +13,8 @@ export default function Footer() {
             <img src="/logo.png" alt="The Board FC" className="h-16 mb-6" />
             <div className="space-y-2 text-sm">
               <p>The Board Football Club</p>
-              <p>Stadium Address</p>
-              <p>City, Country</p>
-              <p>Postal Code</p>
+              <p>Kenya School of Law stadium</p>
+              <p>Nairobi, Kenya</p>
             </div>
             
             {/* Social Links */}
@@ -26,7 +25,7 @@ export default function Footer() {
               <a href="#" className="hover:text-primary transition-colors">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="hover:text-primary transition-colors">
+              <a href="https://www.instagram.com/theboard_fc/" className="hover:text-primary transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
               <a href="#" className="hover:text-primary transition-colors">

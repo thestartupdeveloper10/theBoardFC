@@ -4,198 +4,151 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
-import { Twitter, Instagram, Facebook, Users, Heart, Trophy, Calendar } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import hoodie1 from '@/assets/images/merch/hood1.jpeg'
+import hoodie2 from '@/assets/images/merch/hood2.jpeg'
 
-// Temporary data - will be replaced with Supabase data later
-const fanStories = [
+// New merchandise data
+const merchandise = [
   {
     id: 1,
-    title: 'A Family Tradition',
-    content: 'For three generations, my family has been supporting The Board FC. Every match day, we gather together to cheer on our team...',
-    author: 'Sarah Thompson',
-    date: '2024-02-10',
-    image: 'https://placehold.co/600x400'
+    name: 'Classic Team Hoodie',
+    price: 'Ksh 1,500',
+    image: hoodie1,
+    description: 'Stay warm and show your support with our classic team hoodie featuring the official club crest.',
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    colors: ['Black', 'Navy', 'Grey'],
+    featured: true
   },
   {
     id: 2,
-    title: 'My First Match',
-    content: 'Ill never forget my first match at The Board Stadium. The atmosphere was electric, and the passion of the fans was contagious...',
-    author: 'James Wilson',
-    date: '2024-02-08',
-    image: 'https://placehold.co/600x400'
-  },
-  {
-    id: 3,
-    title: 'Community Spirit',
-    content: 'The Board FC is not just a football club; it is a community',
-    author: 'Emma Davis',
-    date: '2024-02-05',
-    image: 'https://placehold.co/600x400'
+    name: 'Premium Away Day Hoodie',
+    price: 'Ksh 1,500',
+    image: hoodie2,
+    description: 'Premium quality hoodie with embroidered logo and away team colors.',
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    colors: ['White', 'Red', 'Blue'],
+    featured: true
   }
 ]
 
-const communityInitiatives = [
-  {
-    id: 1,
-    title: 'Youth Development Program',
-    description: 'Supporting local youth football development through training camps and equipment donations.',
-    icon: Users,
-    date: 'Ongoing'
-  },
-  {
-    id: 2,
-    title: 'Charity Match',
-    description: 'Annual charity match raising funds for local community projects.',
-    icon: Heart,
-    date: 'March 15, 2024'
-  },
-  {
-    id: 3,
-    title: 'Fan of the Month',
-    description: 'Recognizing outstanding contributions from our fan community.',
-    icon: Trophy,
-    date: 'Monthly'
-  },
-  {
-    id: 4,
-    title: 'Community Day',
-    description: 'Open day at the stadium with activities for all ages.',
-    icon: Calendar,
-    date: 'April 1, 2024'
-  }
-]
+// Gallery images
+const galleryImages = Array.from({ length: 10 }, (_, i) => ({
+  id: i + 1,
+  src: `./src/assets/images/fan/${i + 1}.jpeg`,
+  alt: `Fan gallery image ${i + 1}`
+}))
 
-const membershipTiers = [
-  {
-    name: 'Basic',
-    price: '£25',
-    benefits: [
-      'Match day newsletter',
-      '10% off merchandise',
-      'Access to fan forum',
-      'Monthly e-newsletter'
-    ]
-  },
-  {
-    name: 'Premium',
-    price: '£50',
-    benefits: [
-      'All Basic benefits',
-      'Priority ticket access',
-      'Exclusive match day content',
-      'Meet & greet opportunities',
-      'Free match day program'
-    ]
-  },
-  {
-    name: 'VIP',
-    price: '£100',
-    benefits: [
-      'All Premium benefits',
-      'Season ticket priority',
-      'Exclusive stadium tours',
-      'Player meet & greet',
-      'Complimentary food & drink'
-    ]
-  }
-]
 
-const socialMediaPosts = [
-  {
-    id: 1,
-    platform: 'Twitter',
-    content: 'Great atmosphere at todays training session! 🔥 #TheBoardFC',
-    date: '2 hours ago',
-    icon: Twitter
-  },
-  {
-    id: 2,
-    platform: 'Instagram',
-    content: 'Behind the scenes: Match day preparations 📸',
-    date: '5 hours ago',
-    icon: Instagram
-  },
-  {
-    id: 3,
-    platform: 'Facebook',
-    content: 'Join us this weekend for our Community Day! 🎉',
-    date: '1 day ago',
-    icon: Facebook
-  }
-]
-
-const FanStoryCard = ({ story }: { story: typeof fanStories[0] }) => (
+// New component for merchandise items
+const MerchandiseCard = ({ item }: { item: typeof merchandise[0] }) => (
   <Card className="overflow-hidden">
-    <div className="relative h-48">
+    <div className="relative h-84 overflow-hidden group">
       <img
-        src={story.image}
-        alt={story.title}
-        className="w-full h-full object-cover"
+        src={item.image}
+        alt={item.name}
+        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
+      {item.featured && (
+        <Badge className="absolute top-2 right-2 bg-primary">Featured</Badge>
+      )}
     </div>
     <CardHeader>
-      <CardTitle>{story.title}</CardTitle>
-      <CardDescription className="line-clamp-2">{story.content}</CardDescription>
+      <CardTitle>{item.name}</CardTitle>
+      <CardDescription className="text-xl font-bold text-primary">{item.price}</CardDescription>
     </CardHeader>
-    <CardContent>
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">By {story.author}</span>
-        <span className="text-muted-foreground">{story.date}</span>
-      </div>
-    </CardContent>
-  </Card>
-)
-
-const InitiativeCard = ({ initiative }: { initiative: typeof communityInitiatives[0] }) => (
-  <Card>
-    <CardHeader>
-      <div className="flex items-center gap-2">
-        <initiative.icon className="w-6 h-6 text-primary" />
-        <CardTitle className="text-lg">{initiative.title}</CardTitle>
-      </div>
-      <CardDescription>{initiative.description}</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <p className="text-sm text-muted-foreground">{initiative.date}</p>
-    </CardContent>
-  </Card>
-)
-
-const MembershipCard = ({ tier }: { tier: typeof membershipTiers[0] }) => (
-  <Card>
-    <CardHeader>
-      <CardTitle>{tier.name}</CardTitle>
-      <CardDescription className="text-2xl font-bold">{tier.price}/year</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <ul className="space-y-2">
-        {tier.benefits.map((benefit, index) => (
-          <li key={index} className="flex items-center gap-2 text-sm">
-            <span className="text-primary">✓</span>
-            {benefit}
-          </li>
+    <CardContent className="space-y-4">
+      <p className="text-sm text-muted-foreground">{item.description}</p>
+      
+      <div className="flex flex-wrap gap-2">
+        {item.sizes.map(size => (
+          <Badge key={size} variant="outline">{size}</Badge>
         ))}
-      </ul>
-      <Button className="w-full mt-4">Join Now</Button>
+      </div>
+      
+      <div className="flex flex-wrap gap-2">
+        {item.colors.map(color => (
+          <div key={color} className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color.toLowerCase() }}></div>
+            <span className="text-xs">{color}</span>
+          </div>
+        ))}
+      </div>
+      
+      {/* <Button className="w-full">Add to Cart</Button> */}
     </CardContent>
   </Card>
 )
 
-const SocialMediaCard = ({ post }: { post: typeof socialMediaPosts[0] }) => (
-  <Card>
-    <CardContent className="p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <post.icon className="w-5 h-5 text-primary" />
-        <span className="font-medium">{post.platform}</span>
+// Updated Gallery component for timeline view
+const TimelineGalleryCard = ({ image, index }: { image: typeof galleryImages[0], index: number }) => {
+  const isLeft = index % 2 === 0;
+  
+  return (
+    <motion.div 
+      className={`flex items-center ${isLeft ? 'flex-row' : 'flex-row-reverse'} gap-4 mb-8`}
+      initial={{ opacity: 0, x: isLeft ? -20 : 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+    >
+      {/* Image card */}
+      <div className="w-full md:w-[calc(50%-2rem)]">
+        <div className="relative overflow-hidden rounded-lg shadow-md group">
+          <img 
+            src={image.src} 
+            alt={image.alt} 
+            className="w-full h-64 object-cover object-top transition-all duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <span className="text-white font-bold px-4 py-2 bg-black/50 rounded-md">
+              {index + 1}
+            </span>
+          </div>
+        </div>
       </div>
-      <p className="text-sm">{post.content}</p>
-      <p className="text-xs text-muted-foreground mt-2">{post.date}</p>
-    </CardContent>
-  </Card>
-)
+      
+      {/* Timeline connector */}
+      <div className="relative flex-shrink-0 w-4 self-stretch flex flex-col items-center">
+        <div className="w-4 h-4 bg-primary rounded-full z-10"></div>
+        <motion.div 
+          className="w-0.5 bg-primary/30 absolute inset-0 origin-top"
+          initial={{ scaleY: 0 }}
+          whileInView={{ scaleY: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+        ></motion.div>
+      </div>
+      
+      {/* Content/info */}
+      <div className="w-full md:w-[calc(50%-2rem)] p-4">
+        {/* <h3 className="font-bold text-lg mb-1">Fan Moment {index + 1}</h3> */}
+        {/* <p className="text-muted-foreground text-sm">
+          {isLeft 
+            ? "Celebrating together with our amazing fans during a home match." 
+            : "The passion and support of The Board FC supporters never fails to inspire."}
+        </p> */}
+      </div>
+    </motion.div>
+  );
+};
 
 export default function FanZone() {
-  const [selectedTab, setSelectedTab] = useState('stories')
+  const [selectedTab, setSelectedTab] = useState('gallery')
+  const [selectedTag, setSelectedTag] = useState('all')
+  
+  // Tags for filtering gallery images
+  const galleryTags = ['all', 'matchday', 'fans', 'celebration', 'away']
+  
+  // Filter images based on selected tag (for demo, we'll use modulo to simulate filtering)
+  const filteredImages = selectedTag === 'all' 
+    ? galleryImages 
+    : galleryImages.filter((image, index) => {
+        if (selectedTag === 'matchday') return index % 3 === 0;
+        if (selectedTag === 'fans') return index % 3 === 1;
+        if (selectedTag === 'celebration') return index % 4 === 2;
+        if (selectedTag === 'away') return index % 5 === 0;
+        return true;
+      });
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -208,76 +161,103 @@ export default function FanZone() {
         <p className="text-muted-foreground">Join our community and be part of The Board FC family.</p>
       </motion.div>
 
-      <Tabs defaultValue="stories" className="w-full" onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-8">
-          <TabsTrigger value="stories">Fan Stories</TabsTrigger>
-          <TabsTrigger value="initiatives">Community</TabsTrigger>
-          <TabsTrigger value="membership">Membership</TabsTrigger>
-          <TabsTrigger value="social">Social Media</TabsTrigger>
+      <Tabs defaultValue="gallery" className="w-full" onValueChange={setSelectedTab}>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-6 mb-8">
+          <TabsTrigger value="gallery">Gallery</TabsTrigger>
+          <TabsTrigger value="merchandise">Shop</TabsTrigger>
         </TabsList>
 
         <ScrollArea className="h-[800px] pr-4">
-          <TabsContent value="stories">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {fanStories.map((story, index) => (
-                <motion.div
-                  key={story.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <FanStoryCard story={story} />
-                </motion.div>
-              ))}
+          <TabsContent value="gallery">
+            <div className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold">Timeline Gallery</h2>
+                <p className="text-muted-foreground">Scroll through our memories throughout the season</p>
+                
+                {/* Tag filter buttons */}
+                <div className="flex flex-wrap justify-center gap-2 mt-4">
+                  {galleryTags.map(tag => (
+                    <Button 
+                      key={tag} 
+                      variant={selectedTag === tag ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedTag(tag)}
+                      className="capitalize"
+                    >
+                      {tag}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Timeline container */}
+              <div className="relative">
+                {/* Main vertical timeline line */}
+                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-primary/20 transform -translate-x-1/2"></div>
+                
+                {/* Timeline items */}
+                <div className="space-y-0">
+                  {filteredImages.map((image, index) => (
+                    <TimelineGalleryCard key={image.id} image={image} index={index} />
+                  ))}
+                </div>
+                
+                {/* Empty state if no images match filter */}
+                {filteredImages.length === 0 && (
+                  <div className="py-12 text-center">
+                    <p className="text-muted-foreground">No images found with this tag.</p>
+                    <Button 
+                      variant="link" 
+                      onClick={() => setSelectedTag('all')}
+                      className="mt-2"
+                    >
+                      Show all images
+                    </Button>
+                  </div>
+                )}
+                
+                {/* End of timeline */}
+                {filteredImages.length > 0 && (
+                  <div className="flex justify-center mt-8 relative z-10">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <div className="w-3 h-3 bg-background rounded-full"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Photo submission CTA */}
+              <div className="mt-12 bg-muted p-6 rounded-lg text-center">
+                <h3 className="text-xl font-bold mb-2">Add Your Photo to Our Timeline</h3>
+                <p className="mb-4">Share your fan moments and be part of our visual club history</p>
+                <Button variant="default">Upload Your Photos</Button>
+              </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="initiatives">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {communityInitiatives.map((initiative, index) => (
-                <motion.div
-                  key={initiative.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <InitiativeCard initiative={initiative} />
-                </motion.div>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="membership">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {membershipTiers.map((tier, index) => (
-                <motion.div
-                  key={tier.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <MembershipCard tier={tier} />
-                </motion.div>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="social">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {socialMediaPosts.map((post, index) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <SocialMediaCard post={post} />
-                </motion.div>
-              ))}
+          <TabsContent value="merchandise">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Official Merchandise</h2>
+                <Button variant="outline">View All</Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {merchandise.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <MerchandiseCard item={item} />
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </TabsContent>
         </ScrollArea>
       </Tabs>
     </div>
   )
-} 
+}

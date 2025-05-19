@@ -89,6 +89,8 @@ export default function Header() {
             { to: "/team", label: "Team" },
             { to: "/fixtures", label: "Fixtures" },
             { to: "/news", label: "News" },
+            { to: "/fanzone", label: "Fan Zone" },
+            { to: "/about", label: "About" },
             { to: "/contact", label: "Contact" },
           ].map((item, index) => (
             <motion.div
@@ -221,6 +223,8 @@ export default function Header() {
                 { to: "/team", label: "Team" },
                 { to: "/fixtures", label: "Fixtures" },
                 { to: "/news", label: "News" },
+                { to: "/fanzone", label: "Fan Zone" },
+                { to: "/about", label: "About" },
                 { to: "/contact", label: "Contact" },
               ].map((item, index) => (
                 <motion.div

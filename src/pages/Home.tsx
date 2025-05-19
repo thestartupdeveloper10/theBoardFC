@@ -888,7 +888,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-bold mb-4 md:mb-6 tracking-tight"
           >
-            Welcome to The Board FC
+            Welcome To The Board FC
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -896,7 +896,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg sm:text-xl md:text-2xl underline lg:text-3xl mb-6 md:mb-8 font-light max-w-3xl mx-auto"
           >
-            Better Together
+            The Beautiful Game's Architects | Better Together
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}

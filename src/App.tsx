@@ -19,7 +19,7 @@ import AdminNewsDetail from './pages/admin/NewsDetail';
 import ScrollToTop from './components/ScrollToTop';
 import Contact from './pages/Contact';
 import About from './pages/About';
-
+import FanZone from './pages/FanZone';
 function App() {
   return (
     <AuthProvider>
@@ -65,6 +65,7 @@ function StandardLayout() {
           <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route path="/fanzone" element={<FanZone />} />
           {/* Add a catch-all route to handle 404s */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -3,6 +3,8 @@ import fifa from '@/assets/images/fifa.png'
 import fkf from '@/assets/images/fkf.png'
 import redcross from '@/assets/images/redcross.png'
 import puma from '@/assets/images/puma.png'
+import fauziFound from '@/assets/images/fauzi-found.png'
+import buildique from '@/assets/images/buildique.png'
 
 export default function Sponsers() {
   return (
@@ -22,6 +24,10 @@ export default function Sponsers() {
             {/* Row 2 */}
             <img src={redcross} alt="MSport" className=" h-24  " />
             <img src={puma} alt="Predator Energy" className=" h-24  " />
+
+            {/* Row 3 */}
+            <img src={fauziFound} alt="fauzi" className="h-20 sm:h-24 rounded-lg" />
+            <img src={buildique} alt="buildique" className="h-10 sm:h-10 rounded-lg" />
           </div>
         </div>
       </section>

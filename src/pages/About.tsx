@@ -4,26 +4,40 @@ import { MapPin, Phone, Mail, Clock, Users, Trophy, Heart, Target, Building2, Ex
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-
+import fauzi from '@/assets/images/fauzi.png'
+import fauziFound from '@/assets/images/fauzi-found.png'
+import buildique from '@/assets/images/buildique.png'
+import board from '@/assets/images/board.png'
+import ksl from '@/assets/images/ksl.webp'
 // Simplified data structure
 const clubHistory = [
   {
-    year: '1995',
+    year: '2020',
     title: 'Foundation',
     description: 'The Board FC was founded by a group of passionate football enthusiasts in the heart of the city.'
   },
   {
-    year: '2005',
+    year: '2021',
     title: 'First Promotion',
     description: 'The club achieved its first major promotion, moving up to the professional league.'
   },
   {
-    year: '2015',
+    year: '2022',
     title: 'Stadium Opening',
     description: 'The Board Stadium was inaugurated, providing a state-of-the-art home for the club.'
   },
   {
-    year: '2020',
+    year: '2023',
+    title: 'Runners up of the Annual Board Cup tournament',
+    description: 'The Board FC finished as runners up in the inaugural Board Cup tournament.'
+  },
+  {
+    year: '2024',
+    title: 'Winners of the Annual Board Cup tournament',
+    description: 'The Board FC Triumphs in Inaugural Board Cup Final'
+  },
+  {
+    year: '2025',
     title: 'Community Award',
     description: 'Recognized for outstanding contribution to local community development.'
   }
@@ -53,10 +67,10 @@ const values = [
 ]
 
 const stadiumInfo = {
-  name: 'The Board Stadium',
-  capacity: '25,000',
-  address: '123 Football Street, City Center',
-  phone: '+44 123 456 7890',
+  name: 'The Kenya School of Law Stadium',
+  capacity: '5,000',
+  address: 'Kenya School of Law , Karen',
+  phone: '+254 713 672018',
   email: 'info@theboardfc.com',
   openingHours: 'Monday - Friday: 9:00 AM - 5:00 PM',
   facilities: [
@@ -64,33 +78,33 @@ const stadiumInfo = {
     'State-of-the-art training facilities',
     'Fan shop and merchandise store',
     'Restaurants and bars',
-    'Parking for 5,000 vehicles'
+    'Parking for 1000 vehicles'
   ]
 }
 
 const keyPartners = [
   {
-    name: 'TechCorp',
+    name: 'Fauzi Tours and Travel',
     type: 'Main Sponsor',
-    logo: 'https://placehold.co/200x100',
+    logo: fauzi,
     description: 'Leading technology solutions provider'
   },
   {
-    name: 'SportsGear',
-    type: 'Kit Sponsor',
-    logo: 'https://placehold.co/200x100',
+    name: 'Fauzi Foundation',
+    type: 'Secondary Sponsor',
+    logo: fauziFound,
     description: 'Official kit and equipment supplier'
   },
   {
-    name: 'City Youth Foundation',
+    name: 'Buidique Kenya',
     type: 'Community Partner',
-    logo: 'https://placehold.co/150x150',
+    logo: buildique,
     description: 'Supporting youth development programs'
   },
   {
-    name: 'Local Schools Network',
-    type: 'Education Partner',
-    logo: 'https://placehold.co/150x150',
+    name: 'The Board',
+    type: 'Partner',
+    logo: board,
     description: 'Promoting sports in education'
   }
 ]
@@ -108,7 +122,7 @@ export default function About() {
       >
         <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Story</h1>
         <p className="text-lg text-muted-foreground">
-          Founded in 1995, The Board FC has grown from a small local team to a community fixture, 
+          Founded in 2020, The Board FC has grown from a small local team to a community fixture, 
           centered on our values of excellence, integrity, and innovation.
         </p>
       </motion.div>
@@ -215,7 +229,7 @@ export default function About() {
             <CardContent className="space-y-4">
               <div className="rounded-lg overflow-hidden mb-4 h-40">
                 <img 
-                  src="https://placehold.co/800x400" 
+                  src={ksl}
                   alt="Stadium" 
                   className="w-full h-full object-cover"
                 />
@@ -267,7 +281,7 @@ export default function About() {
                       <img
                         src={partner.logo}
                         alt={partner.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full dark:bg-gray-100 rounded-lg object-contain"
                       />
                     </div>
                     <h3 className="font-medium text-sm">{partner.name}</h3>

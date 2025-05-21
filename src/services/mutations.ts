@@ -102,7 +102,13 @@ export const useUpdateTeamStat = () => {
     mutationFn: teamStatsApi.update,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['teamStats'] });
-      queryClient.invalidateQueries({ queryKey: ['teamStats', data.id] });
+      // Check if data is an array and access the first item's id
+      if (Array.isArray(data) && data.length > 0) {
+        queryClient.invalidateQueries({ queryKey: ['teamStats', data[0].id] });
+      } else if (data && 'id' in data) {
+        // If it's a single object with an id
+        queryClient.invalidateQueries({ queryKey: ['teamStats', data.id] });
+      }
     },
   });
 };
@@ -138,7 +144,13 @@ export const useUpdateFixture = () => {
     mutationFn: fixturesApi.update,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['fixtures'] });
-      queryClient.invalidateQueries({ queryKey: ['fixtures', data.id] });
+      // Check if data is an array and access the first item's id
+      if (Array.isArray(data) && data.length > 0) {
+        queryClient.invalidateQueries({ queryKey: ['fixtures', data[0].id] });
+      } else if (data && 'id' in data) {
+        // If it's a single object with an id
+        queryClient.invalidateQueries({ queryKey: ['fixtures', data.id] });
+      }
     },
   });
 };

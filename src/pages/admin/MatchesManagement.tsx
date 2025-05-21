@@ -10,20 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { MatchForm } from './MatchForm';
-
-interface Fixture {
-  id: string;
-  match_date: string;
-  opponent: string;
-  competition: string;
-  location: string;
-  is_home_game: boolean;
-  home_score: number | null;
-  away_score: number | null;
-  status: string;
-  ticket_link?: string; // Optional property
-  notes?: string;       // Optional property
-}
+import { Fixture } from '@/types/fixture';
 
 export function MatchesManagement() {
   const [fixtures, setFixtures] = useState<Fixture[]>([]);

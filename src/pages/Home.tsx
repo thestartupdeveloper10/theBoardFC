@@ -13,10 +13,26 @@ import logo from '@/assets/images/logo.png'
 import opponent from '@/assets/images/opponent.png'
 import Sponsers from '@/components/Sponsers'
 
+interface Match {
+  id: string | number;
+  date: string;
+  competition: string;
+  homeTeam: {
+    name: string;
+    logo: string;
+  };
+  awayTeam: {
+    name: string;
+    logo: string;
+  };
+  score: string | null;
+  time: string | null;
+  status: string;
+  hasMatchCentre?: boolean;
+  hasTickets?: boolean;
+}
 
-
-// Replace the existing matches section with this new implementation
-const MatchCard = ({ match }: { match: typeof upcomingMatches[0] }) => {
+const MatchCard = ({ match }: { match: Match }) => {
   return (
     <div className="bg-background/95 dark:bg-background/95 backdrop-blur-sm rounded-lg overflow-hidden border border-border">
       <div className="px-3 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
@@ -595,9 +611,9 @@ const PlayerStatsSection = () => {
     // Add total goals for the team
     if (latestTeamStat) {
       // Get a random attacking player to represent team goals
-      const attackers = players.filter(player => 
-        player.position === 'Forward' || player.position === 'Striker' || player.position === 'Winger'
-      );
+      // const attackers = players.filter(player => 
+      //   player.position === 'Forward' || player.position === 'Striker' || player.position === 'Winger'
+      // );
       
       
       formattedPlayers.push({

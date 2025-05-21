@@ -92,7 +92,7 @@ export default function Header() {
             { to: "/fanzone", label: "Fan Zone" },
             { to: "/about", label: "About" },
             { to: "/contact", label: "Contact" },
-          ].map((item, index) => (
+          ].map((item) => (
             <motion.div
               key={item.to}
               variants={navItemVariants}

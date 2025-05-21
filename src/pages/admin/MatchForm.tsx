@@ -14,21 +14,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ImageUploader } from '@/components/image-uploader';
 import emailjs from '@emailjs/browser';
 import { emailConfig } from '@/config/emailjs';
+import { Fixture } from '@/types/fixture';
 
-interface Fixture {
-  id: string;
-  match_date: string;
-  opponent: string;
-  location: string;
-  is_home_game: boolean;
-  competition: string;
-  ticket_link: string;
-  notes: string;
-  status: string;
-  home_score: number | null;
-  away_score: number | null;
-  opponent_logo_url?: string;
-}
 
 interface MatchFormProps {
   fixture?: Fixture;

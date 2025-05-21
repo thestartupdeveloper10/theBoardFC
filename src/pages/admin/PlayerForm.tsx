@@ -11,22 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import { ImageUploader } from '@/components/image-uploader';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCreatePlayer, useUpdatePlayer } from '@/services/mutations';
+import { Player } from '@/types/player';
 
-interface Player {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  player_number: number;
-  position: string;
-  birth_date: string;
-  height: number;
-  weight: number;
-  bio: string;
-  profile_image_url: string;
-  joined_date: string;
-  status: string;
-}
 
 interface PlayerFormProps {
   player?: Player;

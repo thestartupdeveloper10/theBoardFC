@@ -16,6 +16,7 @@ import { usePlayers } from '@/services/queries';
 import { useDeletePlayer } from '@/services/mutations';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { Player } from '@/types/player';
 
 export function PlayersManagement() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,22 +51,6 @@ export function PlayersManagement() {
     queryClient.invalidateQueries({ queryKey: ['players'] });
   }
   
-  interface Player {
-    id: string;
-    first_name: string;
-    last_name: string;
-    player_number?: number;
-    position?: string;
-    status?: string;
-    profile_image_url?: string;
-    email: string;
-    birth_date?: string;
-    height?: number;
-    weight?: number;
-    bio?: string;
-    joined_date?: string;
-    [key: string]: any; // To allow additional properties if needed
-  }
 
   function handleEdit(player: Player) {
     setCurrentPlayer(player);

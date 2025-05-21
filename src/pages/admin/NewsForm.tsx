@@ -13,7 +13,7 @@ import { ImageUploader } from '@/components/image-uploader';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
+
 
 interface NewsArticle {
   id: string;

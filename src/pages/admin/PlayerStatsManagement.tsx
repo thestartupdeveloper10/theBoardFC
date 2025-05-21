@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, Pencil, Search, ArrowUpDown } from 'lucide-react';
+import { PlusCircle, Pencil, ArrowUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/context/AuthContext';
+
 import { PlayerStatForm } from './PlayerStatForm';
 
 interface Player {
@@ -38,7 +37,7 @@ export function PlayerStatsManagement() {
   const { playerId } = useParams<{ playerId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+
   
   const [player, setPlayer] = useState<Player | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStat[]>([]);
@@ -206,8 +205,7 @@ export function PlayerStatsManagement() {
     setIsAddDialogOpen(true);
   }
 
-  // Check if the player has stats for the current season
-  const hasStatsForCurrentSeason = playerStats.length > 0;
+
 
   return (
     <div className="space-y-6">

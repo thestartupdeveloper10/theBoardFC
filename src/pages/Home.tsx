@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import HomeImage from '@/assets/images/home-image.jpeg'
 import MatchImage from '@/assets/images/match-bg.webp'
-import { ArrowRight, Play, ChevronLeft, ChevronRight, Trophy, Target, Shield, Clock, User, Award } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Trophy, Target, Shield, Clock, User } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNewsArticles, usePlayers, useAllPlayerStats, useTeamStats, useFixtures } from '@/services/queries'
 import { format, formatDistanceToNow, parseISO, subHours } from 'date-fns'
@@ -180,77 +180,77 @@ const MatchesSection = () => {
 }
 
 // Update the interface to match what's in your database table
-interface NewsItem {
-  id: string;
-  title: string;
-  summary: string;
-  content: string;
-  featured_image_url: string;
-  is_published: boolean;
-  publish_date: string | null;  // Note: Handle nullable field
-  tags: string[];
-  created_at: string;
-  updated_at: string;
-}
+// interface NewsItem {
+//   id: string;
+//   title: string;
+//   summary: string;
+//   content: string;
+//   featured_image_url: string;
+//   is_published: boolean;
+//   publish_date: string | null;  // Note: Handle nullable field
+//   tags: string[];
+//   created_at: string;
+//   updated_at: string;
+// }
 
 // Update the card component
-const NewsCard = ({ news }: { news: NewsItem }) => {
-  // Get the first tag as category
-  const category = news.tags && news.tags.length > 0 ? news.tags[0] : 'News';
+// const NewsCard = ({ news }: { news: NewsItem }) => {
+//   // Get the first tag as category
+//   const category = news.tags && news.tags.length > 0 ? news.tags[0] : 'News';
   
-  // Calculate time ago from publish_date or use created_at as fallback
-  const dateToUse = news.publish_date ? news.publish_date : news.created_at;
-  const timeAgo = dateToUse ? formatDistanceToNow(parseISO(dateToUse), { addSuffix: false }) : 'Recently';
+//   // Calculate time ago from publish_date or use created_at as fallback
+//   const dateToUse = news.publish_date ? news.publish_date : news.created_at;
+//   const timeAgo = dateToUse ? formatDistanceToNow(parseISO(dateToUse), { addSuffix: false }) : 'Recently';
   
-  // Check if it's a premium article
-  const isPremium = news.tags && news.tags.includes('Premium');
+//   // Check if it's a premium article
+//   const isPremium = news.tags && news.tags.includes('Premium');
   
-  return (
-    <motion.div
-      className="group relative overflow-hidden rounded-lg cursor-pointer bg-background dark:bg-background/95 border border-border"
-      whileHover="hover"
-    >
-      {/* Image */}
-      <Link to={`/news/${news.id}`}>
-      <div className="relative aspect-video">
-        <img 
-          src={news.featured_image_url || '/placeholder-news.jpg'} 
-          alt={news.title} 
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          onError={(e) => {
-            // Fallback if image fails to load
-            (e.target as HTMLImageElement).src = '/placeholder-news.jpg';
-          }}
-        />
-        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors" />
+//   return (
+//     <motion.div
+//       className="group relative overflow-hidden rounded-lg cursor-pointer bg-background dark:bg-background/95 border border-border"
+//       whileHover="hover"
+//     >
+//       {/* Image */}
+//       <Link to={`/news/${news.id}`}>
+//       <div className="relative aspect-video">
+//         <img 
+//           src={news.featured_image_url || '/placeholder-news.jpg'} 
+//           alt={news.title} 
+//           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+//           onError={(e) => {
+//             // Fallback if image fails to load
+//             (e.target as HTMLImageElement).src = '/placeholder-news.jpg';
+//           }}
+//         />
+//         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors" />
         
-        {/* Category Badge */}
-        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 px-2 sm:px-3 py-0.5 sm:py-1 bg-primary/90 dark:bg-primary/80 rounded-full text-xs text-primary-foreground flex items-center gap-2">
-          {category}
-        </div>
+//         {/* Category Badge */}
+//         <div className="absolute top-2 sm:top-3 left-2 sm:left-3 px-2 sm:px-3 py-0.5 sm:py-1 bg-primary/90 dark:bg-primary/80 rounded-full text-xs text-primary-foreground flex items-center gap-2">
+//           {category}
+//         </div>
 
-        {/* Premium Badge */}
-        {isPremium && (
-          <div className="absolute top-2 sm:top-3 right-2 sm:right-3 px-2 sm:px-3 py-0.5 sm:py-1 bg-secondary/90 dark:bg-secondary/80 rounded-full text-xs text-secondary-foreground flex items-center gap-2">
-            Premium
-          </div>
-        )}
-      </div>
-      </Link>
-      {/* Title */}
-      <motion.div 
-        className="absolute inset-x-0 bottom-0 p-3 sm:p-4 bg-gradient-to-t from-black/90 to-transparent"
-        initial={{ opacity: 0.8, y: 10 }}
-        variants={{
-          hover: { opacity: 1, y: 0 }
-        }}
-      >
-        <h3 className="text-sm sm:text-base md:text-lg text-white font-bold leading-tight">{news.title}</h3>
-        <p className="text-xs sm:text-sm text-white/70 mt-1">{timeAgo} ago</p>
-      </motion.div>
-    </motion.div>
-  )
-}
+//         {/* Premium Badge */}
+//         {isPremium && (
+//           <div className="absolute top-2 sm:top-3 right-2 sm:right-3 px-2 sm:px-3 py-0.5 sm:py-1 bg-secondary/90 dark:bg-secondary/80 rounded-full text-xs text-secondary-foreground flex items-center gap-2">
+//             Premium
+//           </div>
+//         )}
+//       </div>
+//       </Link>
+//       {/* Title */}
+//       <motion.div 
+//         className="absolute inset-x-0 bottom-0 p-3 sm:p-4 bg-gradient-to-t from-black/90 to-transparent"
+//         initial={{ opacity: 0.8, y: 10 }}
+//         variants={{
+//           hover: { opacity: 1, y: 0 }
+//         }}
+//       >
+//         <h3 className="text-sm sm:text-base md:text-lg text-white font-bold leading-tight">{news.title}</h3>
+//         <p className="text-xs sm:text-sm text-white/70 mt-1">{timeAgo} ago</p>
+//       </motion.div>
+//     </motion.div>
+//   )
+// }
 
 // Update the FeaturedNewsSection component
 const FeaturedNewsSection = () => {
@@ -464,17 +464,17 @@ const FeaturedNewsSection = () => {
 };
 
 // Add this new interface and data
-interface PlayerStat {
-  id: number
-  name: string
-  number: string
-  position: string
-  image: string
-  statType: 'goals' | 'assists' | 'cleanSheets' | 'appearances'
-  statValue: number
-  statIcon: typeof Trophy | typeof Target | typeof Shield | typeof Clock
-  statLabel: string
-}
+// interface PlayerStat {
+//   id: number
+//   name: string
+//   number: string
+//   position: string
+//   image: string
+//   statType: 'goals' | 'assists' | 'cleanSheets' | 'appearances'
+//   statValue: number
+//   statIcon: typeof Trophy | typeof Target | typeof Shield | typeof Clock
+//   statLabel: string
+// }
 
 
 // Enhanced PlayerStatsSection with auto-scroll and real data
@@ -599,7 +599,6 @@ const PlayerStatsSection = () => {
         player.position === 'Forward' || player.position === 'Striker' || player.position === 'Winger'
       );
       
-      const attacker = attackers.length > 0 ? attackers[0] : players[0];
       
       formattedPlayers.push({
         id: 'team-goals',

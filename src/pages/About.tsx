@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { MapPin, Phone, Mail, Clock, Users, Trophy, Heart, Target, Building2, ExternalLink, Calendar, Award, Check } from 'lucide-react'
+import { MapPin,Mail, Users, Trophy, Heart, Target, Building2, Calendar, Award, } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
 import fauzi from '@/assets/images/fauzi.png'
 import fauziFound from '@/assets/images/fauzi-found.png'
 import buildique from '@/assets/images/buildique.png'
@@ -110,7 +109,7 @@ const keyPartners = [
 ]
 
 export default function About() {
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  
   
   return (
     <div className="container mx-auto px-4 py-12">

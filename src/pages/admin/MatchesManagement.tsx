@@ -21,6 +21,8 @@ interface Fixture {
   home_score: number | null;
   away_score: number | null;
   status: string;
+  ticket_link?: string; // Optional property
+  notes?: string;       // Optional property
 }
 
 export function MatchesManagement() {

@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { format, parseISO, formatDistanceToNow } from 'date-fns'
 import { Link } from 'react-router-dom'
@@ -10,18 +10,18 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useNewsArticles } from '@/services/queries'
 
 // Define the NewsArticle interface
-interface NewsArticle {
-  id: string;
-  title: string;
-  content: string;
-  summary: string;
-  featured_image_url: string;
-  is_published: boolean;
-  publish_date: string | null;
-  tags: string[];
-  created_at: string;
-  updated_at: string;
-}
+// interface NewsArticle {
+//   id: string;
+//   title: string;
+//   content: string;
+//   summary: string;
+//   featured_image_url: string;
+//   is_published: boolean;
+//   publish_date: string | null;
+//   tags: string[];
+//   created_at: string;
+//   updated_at: string;
+// }
 
 // Define available categories - these could be derived from the actual tags in the data
 const newsCategories = ['All', 'Match Reports', 'Team News', 'Transfer News', 'Community', 'News']
@@ -128,7 +128,7 @@ export default function News() {
                         
                         {article.tags && article.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2">
-                            {article.tags.map((tag, tagIndex) => (
+                            {article.tags.map((tag: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined, tagIndex: Key | null | undefined) => (
                               <Badge key={tagIndex} variant="secondary" className="text-xs text-white">
                                 {tag}
                               </Badge>

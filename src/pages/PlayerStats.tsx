@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -13,11 +13,9 @@ import {
   Clock, 
   Shield, 
   User, 
-  Flag, 
   Target, 
   Ruler, 
-  Weight,
-  Award
+  Weight
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
@@ -67,6 +65,12 @@ const StatCard = ({
   icon: Icon, 
   color, 
   max = 100 
+}: { 
+  label: string; 
+  value: number; 
+  icon: React.ComponentType<{ className?: string }>; 
+  color: { primary: string; secondary: string; border: string; text: string; gradient: string }; 
+  max?: number; 
 }) => {
   const percentage = Math.min(Math.max((value / max) * 100, 5), 100);
   
@@ -94,7 +98,17 @@ const StatCard = ({
 };
 
 // Chart component for season comparison
-const StatChart = ({ data, statKey, label, color }) => {
+const StatChart = ({ 
+  data, 
+  statKey, 
+  label, 
+  color 
+}: { 
+  data: Array<{ [key: string]: any; season: string; id: string }>; 
+  statKey: string; 
+  label: string; 
+  color: { gradient: string }; 
+}) => {
   // Sort data by season
   const sortedData = [...data].sort((a, b) => a.season.localeCompare(b.season));
   const maxValue = Math.max(...sortedData.map(s => s[statKey] || 0)) || 1;

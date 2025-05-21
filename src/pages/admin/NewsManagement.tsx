@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { NewsForm } from './NewsForm';
-import { useAuth } from '@/context/AuthContext';
+
 
 interface NewsArticle {
   id: string;
@@ -33,7 +33,7 @@ export function NewsManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentArticle, setCurrentArticle] = useState<NewsArticle | null>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+ 
   
   // Load news on component mount
   useEffect(() => {

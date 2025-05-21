@@ -5,17 +5,13 @@ import { MatchesManagement } from './MatchesManagement';
 import { NewsManagement } from './NewsManagement';
 import { TeamStatsManagement } from './TeamStatsManagement';
 import { PlayerStatsManagement } from './PlayerStatsManagement';
-import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+
 import { Users, Calendar, FileText, BarChart2, Settings, MessageSquare } from 'lucide-react';
 import { ContactList } from './ContactList';
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   
   // Get tab from URL query parameter or default to 'players'
   const activeTab = searchParams.get('tab') || 'players';
@@ -60,18 +56,6 @@ export default function AdminDashboard() {
   };
   
   // Map tab values to human-readable titles
-  const getPageTitle = () => {
-    const titles = {
-      'players': 'Player Management',
-      'player_stats': 'Player Statistics',
-      'matches': 'Fixture Management',
-      'news': 'News Management',
-      'team_stats': 'Team Statistics',
-      'contacts': 'Contact Messages',
-      'settings': 'Admin Settings'
-    };
-    return titles[activeTab as keyof typeof titles] || 'Dashboard';
-  };
   
   return (
     <div className="container mx-auto py-8">

@@ -21,7 +21,7 @@ export function PlayersManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentPlayer, setCurrentPlayer] = useState(null);
+  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -50,7 +50,24 @@ export function PlayersManagement() {
     queryClient.invalidateQueries({ queryKey: ['players'] });
   }
   
-  function handleEdit(player) {
+  interface Player {
+    id: string;
+    first_name: string;
+    last_name: string;
+    player_number?: number;
+    position?: string;
+    status?: string;
+    profile_image_url?: string;
+    email: string;
+    birth_date?: string;
+    height?: number;
+    weight?: number;
+    bio?: string;
+    joined_date?: string;
+    [key: string]: any; // To allow additional properties if needed
+  }
+
+  function handleEdit(player: Player) {
     setCurrentPlayer(player);
     setIsEditDialogOpen(true);
   }
@@ -257,7 +274,7 @@ export function PlayersManagement() {
   );
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status }: { status: 'active' | 'injured' | 'suspended' | 'inactive' | string }) {
   const variants = {
     active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
     injured: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
@@ -268,7 +285,7 @@ function StatusBadge({ status }) {
   return (
     <Badge 
       variant="outline" 
-      className={`${variants[status] || variants.inactive} capitalize`}
+      className={`${status in variants ? variants[status as keyof typeof variants] : variants.inactive} capitalize`}
     >
       {status || 'unknown'}
     </Badge>

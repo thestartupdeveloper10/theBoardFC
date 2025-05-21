@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast, useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format, parseISO } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
@@ -14,7 +14,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ImageUploader } from '@/components/image-uploader';
 import emailjs from '@emailjs/browser';
 import { emailConfig } from '@/config/emailjs';
-import { useNavigate } from 'react-router-dom';
 
 interface Fixture {
   id: string;
@@ -140,7 +139,6 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
 
 export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   
   // Initialize EmailJS

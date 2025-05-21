@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-import { Search, X, User, Calendar, ArrowRight, Flag, Ruler, Weight } from 'lucide-react'
+import { Search, X, Calendar, ArrowRight, Flag, Ruler, Weight } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -228,7 +228,7 @@ const PlayerDetailModal = ({ player, open, onOpenChange }: {
     : null;
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} className="justify-center align-center w-full">
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[400px] md:max-w-[700px] lg:max-w-[800px] p-0 overflow-hidden h-full md:max-h-[90vh] overflow-y-auto">
         <div className="relative">
           {/* Background gradient header */}

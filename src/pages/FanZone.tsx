@@ -133,7 +133,7 @@ const TimelineGalleryCard = ({ image, index }: { image: typeof galleryImages[0],
 };
 
 export default function FanZone() {
-  const [selectedTab, setSelectedTab] = useState('gallery')
+  const [, setSelectedTab] = useState('gallery')
   const [selectedTag, setSelectedTag] = useState('all')
   
   // Tags for filtering gallery images
@@ -142,7 +142,7 @@ export default function FanZone() {
   // Filter images based on selected tag (for demo, we'll use modulo to simulate filtering)
   const filteredImages = selectedTag === 'all' 
     ? galleryImages 
-    : galleryImages.filter((image, index) => {
+    : galleryImages.filter((_image, index) => {
         if (selectedTag === 'matchday') return index % 3 === 0;
         if (selectedTag === 'fans') return index % 3 === 1;
         if (selectedTag === 'celebration') return index % 4 === 2;

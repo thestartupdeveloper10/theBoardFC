@@ -4,7 +4,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { format, parseISO, isSameMonth, isSameDay, subHours } from 'date-fns'
+import { format, parseISO, isSameDay, subHours } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -12,8 +12,7 @@ import { Ticket, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFixtures } from '@/services/queries'
 
-import logo from '@/assets/images/logo.png'
-import opponent from '@/assets/images/opponent.png'
+
 
 // Define the Fixture interface to match your API data
 interface Fixture {

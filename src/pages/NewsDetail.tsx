@@ -7,18 +7,18 @@ import { ChevronLeft, Calendar, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNewsArticle } from '@/services/queries';
 
-interface NewsArticle {
-  id: string;
-  title: string;
-  content: string;
-  summary: string;
-  featured_image_url: string;
-  is_published: boolean;
-  publish_date: string | null;
-  tags: string[];
-  created_at: string;
-  updated_at: string;
-}
+// interface NewsArticle {
+//   id: string;
+//   title: string;
+//   content: string;
+//   summary: string;
+//   featured_image_url: string;
+//   is_published: boolean;
+//   publish_date: string | null;
+//   tags: string[];
+//   created_at: string;
+//   updated_at: string;
+// }
 
 export default function NewsDetail() {
   const { id } = useParams<{ id: string }>();

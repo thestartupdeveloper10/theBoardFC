@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Trash } from 'lucide-react';
 
 const Players: React.FC = () => {
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState<{ id: string }[]>([]);
   const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);
 
   const deletePlayer = async (playerId: string) => {

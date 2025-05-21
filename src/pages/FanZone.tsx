@@ -227,11 +227,11 @@ export default function FanZone() {
               </div>
               
               {/* Photo submission CTA */}
-              <div className="mt-12 bg-muted p-6 rounded-lg text-center">
+              {/* <div className="mt-12 bg-muted p-6 rounded-lg text-center">
                 <h3 className="text-xl font-bold mb-2">Add Your Photo to Our Timeline</h3>
                 <p className="mb-4">Share your fan moments and be part of our visual club history</p>
                 <Button variant="default">Upload Your Photos</Button>
-              </div>
+              </div> */}
             </div>
           </TabsContent>
 

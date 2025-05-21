@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { ImageUploader } from '@/components/image-uploader';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useCreatePlayer, useUpdatePlayer } from '@/services/mutations';
 
 interface Player {
   id: string;
@@ -56,6 +57,9 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
   
   const isEditing = !!player;
   
+  const createPlayerMutation = useCreatePlayer();
+  const updatePlayerMutation = useUpdatePlayer();
+  
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
@@ -81,13 +85,11 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
       };
       
       if (isEditing) {
-        // Update existing player
-        const { error: playerUpdateError } = await supabase
-          .from('players')
-          .update(playerData)
-          .eq('id', player.id);
-          
-        if (playerUpdateError) throw playerUpdateError;
+        // Update existing player using React Query mutation
+        await updatePlayerMutation.mutateAsync({
+          id: player.id,
+          ...playerData
+        });
         
         toast({
           title: "Player updated",
@@ -96,51 +98,14 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
         
         onSuccess();
       } else {
-        // Create new player
-        const { data: newPlayerData, error: playerInsertError } = await supabase
-          .from('players')
-          .insert(playerData)
-          .select('id')
-          .single();
-          
-        if (playerInsertError) throw playerInsertError;
+        // Create new player using React Query mutation
+        const newPlayerData = await createPlayerMutation.mutateAsync(playerData);
         
         if (!newPlayerData?.id) {
           throw new Error("Failed to retrieve new player ID after creation.");
         }
 
-        // Attempt to create initial stats entry for the new player
-        // The database might already have a trigger doing this, so handle the potential duplicate error
-        const currentSeason = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-        
-        try {
-          const { error: statsError } = await supabase
-            .from('player_stats')
-            .insert({
-              player_id: newPlayerData.id,
-              season: currentSeason,
-              matches_played: 0,
-              goals: 0,
-              assists: 0,
-              yellow_cards: 0,
-              red_cards: 0,
-              minutes_played: 0,
-              created_by: user?.id,
-            });
-            
-          if (statsError) {
-            // Check if this is a duplicate key error (which is okay in this case)
-            if (statsError.code === '23505') {
-              console.log('Initial stats already exist - likely created by database trigger');
-            } else {
-              // For other errors, warn but don't block player creation
-              console.warn('Non-critical error creating initial player stats:', statsError);
-            }
-          }
-        } catch (statsErr) {
-          // Don't let stats creation failure block player creation
-          console.warn('Failed to create initial player stats:', statsErr);
-        }
+        // Create initial stats is now handled by the API layer or database triggers
         
         toast({
           title: "Player created",
@@ -235,7 +200,7 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
               
               <div className="space-y-2">
                 <Label htmlFor="position">Position</Label>
-                <Select value={position} onValueChange={setPosition}>
+                <Select key="position-select" value={position} onValueChange={setPosition}>
                   <SelectTrigger id="position">
                     <SelectValue placeholder="Select position" />
                   </SelectTrigger>

@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom'
 import elly from '@/assets/images/eli.jpg'
 import olunga from '@/assets/images/olunga.jpeg'
 import chris from '@/assets/images/chris.jpeg'
+import jos from '@/assets/images/jos.jpeg'
 
 const positions = ['All', 'Goalkeeper', 'Defender', 'Midfielder', 'Forward']
 
@@ -39,7 +40,7 @@ const staff = [
     id: 3,
     name: 'Dr. Josephine Omosa',
     role: 'Team Doctor',
-    image: 'https://placehold.co/400',
+    image: jos,
     bio: 'Sports medicine specialist with 5 years experience in professional football.'
   },
   {
@@ -381,7 +382,7 @@ const StaffCard = ({ member }: { member: typeof staff[0] }) => (
       
       <div className="relative z-10 pt-12 px-6 pb-6 flex flex-col items-center">
         <Avatar className="w-40 h-40 border-4 border-background mb-4">
-          <AvatarImage src={member.image} alt={member.name} className="object-cover h-40 w-40" />
+          <AvatarImage src={member.image} alt={member.name} className="object-cover object-top h-40 w-40" />
           <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
         </Avatar>
         

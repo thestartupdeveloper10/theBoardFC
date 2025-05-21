@@ -52,24 +52,72 @@ export const playerApi = {
   
   // Delete a player
   delete: async (id: string) => {
-    // First delete player stats
-    const { error: statsDeleteError } = await supabase
-      .from('player_stats')
-      .delete()
-      .eq('player_id', id);
-    
-    if (statsDeleteError) throw statsDeleteError;
-    
-    // Then delete the player
-    const { error } = await supabase
-      .from('players')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    return id;
+    try {
+      // First, get the player to find the image URL
+      const { data: player, error: fetchError } = await supabase
+        .from('players')
+        .select('profile_image_url')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // If there's a profile image URL, delete it from storage
+      if (player?.profile_image_url) {
+        const imageUrl = player.profile_image_url;
+        // Check if it's a Supabase storage URL
+        if (imageUrl.includes('storage') && imageUrl.includes('players')) {
+          // Extract the path from URL
+          const path = getStoragePathFromUrl(imageUrl);
+          
+          if (path) {
+            const { error: storageError } = await supabase.storage
+              .from('media')
+              .remove([path]);
+            
+            if (storageError) {
+              console.error('Error deleting player image:', storageError);
+              // Continue with player deletion even if image deletion fails
+            }
+          }
+        }
+      }
+      
+      // Delete player stats
+      const { error: statsDeleteError } = await supabase
+        .from('player_stats')
+        .delete()
+        .eq('player_id', id);
+      
+      if (statsDeleteError) throw statsDeleteError;
+      
+      // Then delete the player
+      const { error } = await supabase
+        .from('players')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      return id;
+    } catch (error) {
+      console.error("Error in delete player:", error);
+      throw error;
+    }
   }
 };
+
+// Helper function to extract storage path from URL
+function getStoragePathFromUrl(url: string): string | null {
+  if (!url) return null;
+  try {
+    // This will extract "players/filename.jpg" from ".../media/players/filename.jpg"
+    const match = url.match(/\/media\/(.+)$/);
+    return match ? decodeURIComponent(match[1]) : null;
+  } catch (error) {
+    console.error('Error extracting storage path:', error);
+    return null;
+  }
+}
 
 // ----- Player Stats API -----
 export const playerStatsApi = {

@@ -191,8 +191,7 @@ export default function Fixtures() {
   // Fetch fixtures data using TanStack Query
   const { data: fixtures = [], isLoading, error } = useFixtures();
 
-  // Log just the raw data first
-  console.log('Fixtures data:', fixtures);
+ 
   
   // Filter and group fixtures
   const groupedFixtures = useMemo(() => {
@@ -230,10 +229,7 @@ export default function Fixtures() {
     };
   }, [fixtures, competitionFilter]);
   
-  // Now you can safely log grouped fixtures after declaration
-  console.log('Upcoming matches:', groupedFixtures.upcoming);
-  console.log('Completed matches:', groupedFixtures.completed);
-  console.log('Postponed matches:', groupedFixtures.postponedOrCancelled);
+ 
   
   // Filter fixtures for the calendar view by selected date
   const fixturesOnSelectedDate = useMemo(() => {

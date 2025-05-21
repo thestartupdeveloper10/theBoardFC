@@ -70,6 +70,39 @@ export function NewsManagement() {
     }
     
     try {
+      // First, get the article to find the image URL
+      const { data: article, error: fetchError } = await supabase
+        .from('news')
+        .select('featured_image_url')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // If there's an image URL and it's from storage, delete it
+      if (article?.featured_image_url) {
+        const imageUrl = article.featured_image_url;
+        // Check if it's a Supabase storage URL
+        if (imageUrl.includes('storage') && imageUrl.includes('news')) {
+          // Extract the path - assuming URL format like "*/storage/v1/object/public/media/news/filename.jpg"
+          const pathParts = imageUrl.split('/news/');
+          if (pathParts.length > 1) {
+            const fileName = pathParts[1];
+            const storagePath = `news/${fileName}`;
+            
+            const { error: storageError } = await supabase.storage
+              .from('media')
+              .remove([storagePath]);
+            
+            if (storageError) {
+              console.error('Error deleting image from storage:', storageError);
+              // Continue with article deletion even if image deletion fails
+            }
+          }
+        }
+      }
+      
+      // Now delete the article from the database
       const { error } = await supabase
         .from('news')
         .delete()
@@ -82,7 +115,7 @@ export function NewsManagement() {
       
       toast({
         title: "News article deleted",
-        description: "The news article has been deleted successfully.",
+        description: "The news article and associated image have been deleted successfully.",
       });
     } catch (error) {
       console.error('Error deleting news article:', error);

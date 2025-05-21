@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import { usePlayers } from '@/services/queries';
 import { useDeletePlayer } from '@/services/mutations';
 import { supabase } from '@/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function PlayersManagement() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,11 +23,9 @@ export function PlayersManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-
-
-  
-  // Use TanStack Query hooks instead of manual fetching
+  // Use TanStack Query hooks
   const { data: players = [], isLoading, isError, error } = usePlayers();
   const deletePlayerMutation = useDeletePlayer();
   
@@ -40,11 +39,15 @@ export function PlayersManagement() {
   
   function handleAddSuccess() {
     setIsAddDialogOpen(false);
+    // Force a refetch to ensure we have the latest data
+    queryClient.invalidateQueries({ queryKey: ['players'] });
   }
   
   function handleEditSuccess() {
     setIsEditDialogOpen(false);
     setCurrentPlayer(null);
+    // Force a refetch to ensure we have the latest data
+    queryClient.invalidateQueries({ queryKey: ['players'] });
   }
   
   function handleEdit(player) {
@@ -89,7 +92,7 @@ export function PlayersManagement() {
         if (imagePath) {
           const { error: storageError } = await supabase.storage
             .from('media')
-            .remove([`players/${player.profile_image_url}`]);
+            .remove([imagePath]);
             
           if (storageError) {
             console.error('Error deleting player image:', storageError);
@@ -156,6 +159,7 @@ export function PlayersManagement() {
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Add New Player</DialogTitle>
+                <DialogDescription>Fill out the form below to add a new player to the team.</DialogDescription>
               </DialogHeader>
               <PlayerForm onSuccess={handleAddSuccess} />
             </DialogContent>
@@ -221,6 +225,7 @@ export function PlayersManagement() {
                           <DialogContent className="sm:max-w-[600px]">
                             <DialogHeader>
                               <DialogTitle>Edit Player</DialogTitle>
+                              <DialogDescription>Modify the player details in the form below.</DialogDescription>
                             </DialogHeader>
                             {currentPlayer && (
                               <PlayerForm 

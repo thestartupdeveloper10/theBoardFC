@@ -518,7 +518,6 @@ const PlayerStatsSection = () => {
     // Add top goal scorer
     if (goalScorers.length > 0) {
       const topScorer = goalScorers[0];
-      console.log('topScorer', topScorer.goals);
       const player = players.find(p => p.id === topScorer.player_id);
       if (player) {
         formattedPlayers.push({
@@ -872,21 +871,21 @@ export default function Home() {
   return (
     <div className="space-y-0">
       {/* Hero Section - Made fullscreen with video background */}
-      <section className="relative h-screen flex items-center justify-center">
+      <section className="relative h-screen flex items-center  md:items-end justify-center">
         <div
-          className="absolute inset-0 bg-cover h-full w-auto bg-center"
+          className="absolute inset-0 bg-cover h-full w-auto bg-top"
           style={{
             backgroundImage: `url(${HomeImage})`,
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/50" />
         </div>
-        <div className="relative container mx-auto px-4 text-center text-white">
+        <div className="relative mx-auto px-4 mb-0 md:mb-28 text-center text-white">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-bold mb-4 md:mb-6 tracking-tight"
+            className="text-3xl md:text-8xl font-bold mb-4 md:mb-6 tracking-tight"
           >
             Welcome To The Board FC
           </motion.h1>

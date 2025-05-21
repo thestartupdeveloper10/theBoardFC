@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
 
@@ -14,15 +14,60 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// 1 hour in milliseconds
+const AUTO_LOGOUT_TIME = 60 * 60 * 1000;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  console.log('isAdmin', isAdmin)
+  // Function to reset the auto logout timer
+  const resetLogoutTimer = () => {
+    // Clear any existing timer
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+    }
+    
+    // Only set a new timer if the user is logged in
+    if (user) {
+      logoutTimerRef.current = setTimeout(() => {
+        signOut();
+      }, AUTO_LOGOUT_TIME);
+    }
+  };
 
-  console.log('session id', session?.user?.id)
+  // Setup activity listeners to reset the timer
+  useEffect(() => {
+    if (!user) return;
+
+    // Reset timer on user activity
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    
+    const handleUserActivity = () => {
+      resetLogoutTimer();
+    };
+    
+    // Add event listeners
+    activityEvents.forEach(event => {
+      window.addEventListener(event, handleUserActivity);
+    });
+
+    // Initialize the timer
+    resetLogoutTimer();
+    
+    // Cleanup
+    return () => {
+      if (logoutTimerRef.current) {
+        clearTimeout(logoutTimerRef.current);
+      }
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, handleUserActivity);
+      });
+    };
+  }, [user]);
 
   useEffect(() => {
     // Get initial session
@@ -59,7 +104,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('id', userId)
         .single();
 
-      console.log('data from db', data)
       
       if (error) {
         console.error('Error checking user role:', error.message);
@@ -110,10 +154,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
     
+    // Start the auto-logout timer after successful login
+    resetLogoutTimer();
+    
     return { error: null, isUserAdmin };
   };
 
   const signOut = async () => {
+    // Clear the auto-logout timer when signing out
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = null;
+    }
     await supabase.auth.signOut();
   };
 

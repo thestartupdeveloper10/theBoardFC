@@ -12,7 +12,6 @@ import PlayerStats from './pages/PlayerStats';
 import Fixtures from './pages/Fixtures';
 import News from './pages/News';
 import NewsDetail from './pages/NewsDetail';
-import SignUp from './components/auth/SignUp';
 import { PlayerStatsManagement } from './pages/admin/PlayerStatsManagement';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminNewsDetail from './pages/admin/NewsDetail';
@@ -29,7 +28,7 @@ function App() {
         
         {/* Auth routes (no header/footer) */}
         <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
+     
         
         {/* Admin routes with admin layout */}
         <Route element={<ProtectedRoute requireAdmin={true} />}>

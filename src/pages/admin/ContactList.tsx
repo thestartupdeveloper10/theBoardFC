@@ -182,54 +182,56 @@ export function ContactList() {
                 </p>
               </div>
             ) : (
-              <table className="w-full">
-                <thead className="bg-muted/50 sticky top-0">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium">Status</th>
-                    <th className="px-4 py-3 text-left font-medium">Name</th>
-                    <th className="px-4 py-3 text-left font-medium">Email</th>
-                    <th className="px-4 py-3 text-left font-medium">Subject</th>
-                    <th className="px-4 py-3 text-left font-medium">Date</th>
-                    <th className="px-4 py-3 text-right font-medium">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredContacts.map((contact) => (
-                    <tr 
-                      key={contact.id} 
-                      className={`border-b hover:bg-muted/30 ${
-                        contact.status === 'unread' ? 'font-medium' : ''
-                      }`}
-                    >
-                      <td className="px-4 py-3">
-                        {contact.status === 'unread' ? (
-                          <Badge variant="default">Unread</Badge>
-                        ) : (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
-                      </td>
-                      <td className="px-4 py-3">{contact.name}</td>
-                      <td className="px-4 py-3">{contact.email}</td>
-                      <td className="px-4 py-3">
-                        {contact.subject || '(No subject)'}
-                      </td>
-                      <td className="px-4 py-3">
-                        {format(parseISO(contact.created_at), 'MMM d, yyyy')}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleViewContact(contact)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[800px]">
+                  <thead className="bg-muted/50 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-medium">Status</th>
+                      <th className="px-4 py-3 text-left font-medium">Name</th>
+                      <th className="px-4 py-3 text-left font-medium">Email</th>
+                      <th className="px-4 py-3 text-left font-medium">Subject</th>
+                      <th className="px-4 py-3 text-left font-medium">Date</th>
+                      <th className="px-4 py-3 text-right font-medium">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredContacts.map((contact) => (
+                      <tr 
+                        key={contact.id} 
+                        className={`border-b hover:bg-muted/30 ${
+                          contact.status === 'unread' ? 'font-medium' : ''
+                        }`}
+                      >
+                        <td className="px-4 py-3">
+                          {contact.status === 'unread' ? (
+                            <Badge variant="default">Unread</Badge>
+                          ) : (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          )}
+                        </td>
+                        <td className="px-4 py-3">{contact.name}</td>
+                        <td className="px-4 py-3">{contact.email}</td>
+                        <td className="px-4 py-3">
+                          {contact.subject || '(No subject)'}
+                        </td>
+                        <td className="px-4 py-3">
+                          {format(parseISO(contact.created_at), 'MMM d, yyyy')}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleViewContact(contact)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </ScrollArea>
         </>

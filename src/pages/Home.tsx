@@ -50,7 +50,7 @@ const MatchCard = ({ match }: { match: Match }) => {
             />
             <span className="font-bold text-sm sm:text-base text-foreground">{match.homeTeam.name}</span>
           </div>
-          <div className="font-extrabold text-base sm:text-xl text-foreground">
+          <div className="font-extrabold text-base px-3 sm:text-xl text-foreground">
             {match.score || match.time}
           </div>
           <div className="grid grid-cols-1">
@@ -195,7 +195,7 @@ const MatchesSection = () => {
   )
 }
 
-// Update the interface to match what's in your database table
+
 // interface NewsItem {
 //   id: string;
 //   title: string;
@@ -674,7 +674,7 @@ const PlayerStatsSection = () => {
       <section className="py-16 lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 overflow-hidden">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-12 text-center text-foreground">
-            PLAYER STATISTICS
+           TOP PLAYER STATISTICS
           </h2>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
@@ -691,7 +691,7 @@ const PlayerStatsSection = () => {
       <section className="py-16 lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 overflow-hidden">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
-            PLAYER STATISTICS
+           TOP PLAYER STATISTICS
           </h2>
           <p className="text-muted-foreground">No player statistics available yet.</p>
         </div>
@@ -704,7 +704,7 @@ const PlayerStatsSection = () => {
       <div className="container mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold mb-12 text-center text-foreground">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-          PLAYER STATISTICS
+          TOP PLAYER STATISTICS
           </span>
         </h2>
         
@@ -900,9 +900,9 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-3xl md:text-8xl font-bold mb-4 md:mb-6 tracking-tight"
+            className="text-4xl md:text-8xl font-extrabold mb-4 md:mb-6 tracking-tight"
           >
-            Welcome To The Board FC
+      Welcome to The Board FC
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -910,7 +910,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg sm:text-xl md:text-2xl underline lg:text-3xl mb-6 md:mb-8 font-light max-w-3xl mx-auto"
           >
-            The Beautiful Game's Architects | Better Together
+            The Beautiful Game's Architects | #Better Together
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}

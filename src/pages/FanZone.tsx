@@ -7,6 +7,16 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import hoodie1 from '@/assets/images/merch/hood1.jpeg'
 import hoodie2 from '@/assets/images/merch/hood2.jpeg'
+import image1 from '@/assets/images/fan/1.jpeg'
+import image2 from '@/assets/images/fan/2.jpeg'
+import image3 from '@/assets/images/fan/3.jpeg'
+import image4 from '@/assets/images/fan/4.jpeg'
+import image5 from '@/assets/images/fan/5.jpeg'
+import image6 from '@/assets/images/fan/6.jpeg'
+import image7 from '@/assets/images/fan/7.jpeg'
+import image8 from '@/assets/images/fan/8.jpeg'
+import image9 from '@/assets/images/fan/9.jpeg'
+import image10 from '@/assets/images/fan/10.jpeg'
 
 // New merchandise data
 const merchandise = [
@@ -32,13 +42,19 @@ const merchandise = [
   }
 ]
 
-// Gallery images
-const galleryImages = Array.from({ length: 10 }, (_, i) => ({
-  id: i + 1,
-  src: `./src/assets/images/fan/${i + 1}.jpeg`,
-  alt: `Fan gallery image ${i + 1}`
-}))
-
+// Gallery images - using explicitly imported images
+const galleryImages = [
+  { id: 1, src: image1, alt: 'Fan gallery image 1' },
+  { id: 2, src: image2, alt: 'Fan gallery image 2' },
+  { id: 3, src: image3, alt: 'Fan gallery image 3' },
+  { id: 4, src: image4, alt: 'Fan gallery image 4' },
+  { id: 5, src: image5, alt: 'Fan gallery image 5' },
+  { id: 6, src: image6, alt: 'Fan gallery image 6' },
+  { id: 7, src: image7, alt: 'Fan gallery image 7' },
+  { id: 8, src: image8, alt: 'Fan gallery image 8' },
+  { id: 9, src: image9, alt: 'Fan gallery image 9' },
+  { id: 10, src: image10, alt: 'Fan gallery image 10' }
+];
 
 // New component for merchandise items
 const MerchandiseCard = ({ item }: { item: typeof merchandise[0] }) => (

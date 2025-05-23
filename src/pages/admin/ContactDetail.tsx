@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { supabase } from '@/lib/supabase';
 
 interface Contact {
   id: string;
@@ -31,9 +32,21 @@ interface ContactDetailProps {
   onDelete: () => void;
 }
 
-export function ContactDetail({ contact, onClose, onDelete }: ContactDetailProps) {
+export function ContactDetail({ contact, onClose }: ContactDetailProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
+  const handleDeleteContact = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('contact')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+    } catch (err: any) {
+      console.error('Error deleting contact:', err);
+    }
+  };
   // Format contact creation date
   const formattedDate = format(parseISO(contact.created_at), 'MMMM d, yyyy h:mm a');
   
@@ -118,7 +131,7 @@ export function ContactDetail({ contact, onClose, onDelete }: ContactDetailProps
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={onDelete}
+              onClick={() => handleDeleteContact(contact.id)}
               className="bg-red-500 hover:bg-red-600 text-white"
             >
               Delete

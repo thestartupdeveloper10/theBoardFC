@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Club Info */}
           <div>
-            <img src="/logo.png" alt="The Board FC" className="h-16 mb-6" />
+            <img src="https://erpxdjzgbifiebxjgomg.supabase.co/storage/v1/object/public/media/logos/logo.png" alt="The Board FC" className="h-16 mb-6" />
             <div className="space-y-2 text-sm">
               <p>The Board Football Club</p>
               <p>Kenya School of Law stadium</p>
@@ -44,7 +44,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* App Download */}
+          
           <div>
             <h3 className="text-lg font-bold mb-4">Staff Area</h3>
             <Button asChild>

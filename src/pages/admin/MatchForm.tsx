@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO,subHours } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -40,7 +40,7 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
     // Format match date for the message
     const matchDate = parseISO(fixture.match_date);
     const formattedDate = format(matchDate, 'EEEE, MMMM do, yyyy');
-    const formattedTime = format(matchDate, 'h:mm a');
+    const formattedTime = format(subHours(matchDate, 3), 'h:mm a');
     
     // Create notification message based on type
     let subject = '';
@@ -51,7 +51,7 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
         subject = `New Match Scheduled: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
         message = `A new match has been scheduled for ${formattedDate} at ${formattedTime}. 
                   We will be playing ${fixture.is_home_game ? 'at home' : 'away'} against ${fixture.opponent} 
-                  in the ${fixture.competition}.`;
+                  in ${fixture.competition} match at ${fixture.location}.`;
         break;
       case 'update':
         subject = `Match Update: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
@@ -248,7 +248,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
   
   return (
     <ScrollArea className="h-[calc(100vh-200px)] px-4 md:px-6">
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto py-6 space-y-6 px-2">
+      <form onSubmit={handleSubmit} className="max-w-2xl px-2 py-6 mx-auto space-y-6">
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
@@ -302,7 +302,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
                 />
               </div>
               
-              <div className="flex items-center space-x-2 py-2">
+              <div className="flex items-center py-2 space-x-2">
                 <Checkbox 
                   id="isHomeGame" 
                   checked={isHomeGame} 
@@ -320,7 +320,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
                 showUrlInput={false}
                 deleteOldImage={true}
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Upload the opponent team's logo. If none is provided, a default logo will be used.
               </p>
             </div>

@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { PlusCircle, Pencil, Trash, Search, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO,subHours } from 'date-fns';
 import { MatchForm } from './MatchForm';
 import { Fixture } from '@/types/fixture';
 
@@ -92,14 +92,16 @@ export function MatchesManagement() {
     (fixture.competition || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
   
+
   // Helper function to display formatted date
   function formatMatchDate(dateString: string) {
-    try {
-      return format(parseISO(dateString), 'dd MMM yyyy - HH:mm');
-    } catch (e) {
-      return dateString;
-    }
+  try {
+    // Subtract 3 hours before formatting
+    return format(subHours(parseISO(dateString), 3), 'dd MMM yyyy - HH:mm');
+  } catch (e) {
+    return dateString;
   }
+}
   
   // Helper function to render status badge
   function renderStatusBadge(status: string) {
@@ -121,11 +123,11 @@ export function MatchesManagement() {
   
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row">
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <PlusCircle className="w-4 h-4 mr-2" />
               Add Fixture
             </Button>
           </DialogTrigger>
@@ -144,7 +146,7 @@ export function MatchesManagement() {
       </div>
       
       <div className="flex items-center space-x-2">
-        <Search className="h-5 w-5 text-muted-foreground" />
+        <Search className="w-5 h-5 text-muted-foreground" />
         <Input
           placeholder="Search fixtures..."
           value={searchQuery}
@@ -170,13 +172,13 @@ export function MatchesManagement() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={7} className="py-8 text-center">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : filteredFixtures.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={7} className="py-8 text-center">
                     No fixtures found.
                   </TableCell>
                 </TableRow>
@@ -185,7 +187,7 @@ export function MatchesManagement() {
                   <TableRow key={fixture.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
                         <span>{formatMatchDate(fixture.match_date)}</span>
                       </div>
                     </TableCell>
@@ -211,14 +213,14 @@ export function MatchesManagement() {
                         size="icon"
                         onClick={() => handleEditFixture(fixture)}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="w-4 h-4" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="icon"
                         onClick={() => handleDeleteFixture(fixture.id)}
                       >
-                        <Trash className="h-4 w-4 text-destructive" />
+                        <Trash className="w-4 h-4 text-destructive" />
                       </Button>
                     </TableCell>
                   </TableRow>

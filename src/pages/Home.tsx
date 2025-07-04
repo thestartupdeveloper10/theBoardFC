@@ -34,10 +34,10 @@ interface Match {
 
 const MatchCard = ({ match }: { match: Match }) => {
   return (
-    <div className="bg-background/95 dark:bg-background/95 backdrop-blur-sm rounded-lg overflow-hidden border border-border">
-      <div className="px-3 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
+    <div className="overflow-hidden border rounded-lg bg-background/95 dark:bg-background/95 backdrop-blur-sm border-border">
+      <div className="px-3 py-3 space-y-3 sm:px-6 sm:py-4 sm:space-y-4">
         <div className="flex flex-col space-y-1">
-          <span className="text-xs sm:text-sm font-medium text-foreground">{match.date}</span>
+          <span className="text-xs font-medium sm:text-sm text-foreground">{match.date}</span>
           <span className="text-xs text-muted-foreground">{match.competition}</span>
         </div>
 
@@ -46,20 +46,20 @@ const MatchCard = ({ match }: { match: Match }) => {
             <img 
               src={match.homeTeam.name === 'The Board FC' ? logo : match.homeTeam.logo} 
               alt={match.homeTeam.name} 
-              className="w-24 h-24 object-cover"
+              className="object-cover w-24 h-24 rounded-md dark:bg-gray-200"
             />
-            <span className="font-bold text-sm sm:text-base text-foreground">{match.homeTeam.name}</span>
+            <span className="text-sm font-bold sm:text-base text-foreground">{match.homeTeam.name}</span>
           </div>
-          <div className="font-extrabold text-base px-3 sm:text-xl text-foreground">
+          <div className="px-3 text-base font-extrabold sm:text-xl text-foreground">
             {match.score || match.time}
           </div>
           <div className="grid grid-cols-1">
           <img 
               src={match.awayTeam.name === 'The Board FC' ? logo : match.awayTeam.logo} 
               alt={match.awayTeam.name} 
-              className="w-24 h-24 object-cover"
+              className="object-cover w-24 h-24 rounded-md dark:bg-gray-200"
             />
-            <span className="font-bold text-sm sm:text-base text-foreground">{match.awayTeam.name}</span>
+            <span className="text-sm font-bold sm:text-base text-foreground">{match.awayTeam.name}</span>
            
           </div>
         </div>
@@ -142,11 +142,11 @@ const MatchesSection = () => {
   }, [fixtures]);
   
   return (
-    <section className="py-10 sm:py-12 md:py-16 relative bg-muted dark:bg-muted/50">
-      <h2 className="text-center text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-foreground">Matches</h2>
-      <div className="mx-auto px-4 relative">
+    <section className="relative py-10 sm:py-12 md:py-16 bg-muted dark:bg-muted/50">
+      <h2 className="mb-6 text-2xl font-bold text-center sm:text-3xl md:mb-8 text-foreground">Matches</h2>
+      <div className="relative px-4 mx-auto">
         <div
-          className="absolute inset-0 bg-cover h-full w-full bg-center"
+          className="absolute inset-0 w-full h-full bg-center bg-cover"
           style={{
             backgroundImage: `url(${MatchImage})`,
           }}
@@ -157,24 +157,24 @@ const MatchesSection = () => {
         <div className="relative flex items-center justify-center py-8 md:py-20">
           {isLoading ? (
             // Loading state
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 sm:gap-6">
               {[1, 2, 3].map(i => (
-                <Skeleton key={i} className="h-60 w-full rounded-lg" />
+                <Skeleton key={i} className="w-full rounded-lg h-60" />
               ))}
             </div>
           ) : error ? (
             // Error state
-            <div className="p-8 text-center bg-red-50/10 backdrop-blur-sm rounded-lg">
+            <div className="p-8 text-center rounded-lg bg-red-50/10 backdrop-blur-sm">
               <p>Unable to load fixture data. Please try again later.</p>
             </div>
           ) : formattedMatches.length === 0 ? (
             // Empty state
-            <div className="p-8 text-center text-muted-foreground bg-background/70 backdrop-blur-sm rounded-lg">
+            <div className="p-8 text-center rounded-lg text-muted-foreground bg-background/70 backdrop-blur-sm">
               <p>No upcoming matches scheduled at this time.</p>
             </div>
           ) : (
             // Display matches
-            <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 sm:gap-6">
               {formattedMatches.map((match) => (
                 <MatchCard key={match.id} match={match} />
               ))}
@@ -186,7 +186,7 @@ const MatchesSection = () => {
           <Link to="/fixtures">
             <Button variant="outline" className="bg-background/50 backdrop-blur-sm hover:bg-background/80">
               View All Fixtures
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
         </div>
@@ -223,7 +223,7 @@ const MatchesSection = () => {
   
 //   return (
 //     <motion.div
-//       className="group relative overflow-hidden rounded-lg cursor-pointer bg-background dark:bg-background/95 border border-border"
+//       className="relative overflow-hidden border rounded-lg cursor-pointer group bg-background dark:bg-background/95 border-border"
 //       whileHover="hover"
 //     >
 //       {/* Image */}
@@ -232,13 +232,13 @@ const MatchesSection = () => {
 //         <img 
 //           src={news.featured_image_url || '/placeholder-news.jpg'} 
 //           alt={news.title} 
-//           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+//           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
 //           onError={(e) => {
 //             // Fallback if image fails to load
 //             (e.target as HTMLImageElement).src = '/placeholder-news.jpg';
 //           }}
 //         />
-//         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors" />
+//         <div className="absolute inset-0 transition-colors bg-black/40 group-hover:bg-black/60" />
         
 //         {/* Category Badge */}
 //         <div className="absolute top-2 sm:top-3 left-2 sm:left-3 px-2 sm:px-3 py-0.5 sm:py-1 bg-primary/90 dark:bg-primary/80 rounded-full text-xs text-primary-foreground flex items-center gap-2">
@@ -261,8 +261,8 @@ const MatchesSection = () => {
 //           hover: { opacity: 1, y: 0 }
 //         }}
 //       >
-//         <h3 className="text-sm sm:text-base md:text-lg text-white font-bold leading-tight">{news.title}</h3>
-//         <p className="text-xs sm:text-sm text-white/70 mt-1">{timeAgo} ago</p>
+//         <h3 className="text-sm font-bold leading-tight text-white sm:text-base md:text-lg">{news.title}</h3>
+//         <p className="mt-1 text-xs sm:text-sm text-white/70">{timeAgo} ago</p>
 //       </motion.div>
 //     </motion.div>
 //   )
@@ -284,24 +284,24 @@ const FeaturedNewsSection = () => {
   
   return (
     <section className="py-12 sm:py-16 md:py-20 bg-muted dark:bg-muted/50">
-      <div className="container mx-auto px-4">
+      <div className="container px-4 mx-auto">
         <motion.div 
           className="flex items-center justify-between mb-6 sm:mb-8 md:mb-10"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+          <h2 className="text-xl font-bold sm:text-2xl text-foreground">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70">
               FEATURED NEWS
             </span>
           </h2>
           <Link 
             to="/news" 
-            className="text-primary hover:text-primary/80 font-medium text-xs sm:text-sm flex items-center gap-1"
+            className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 sm:text-sm"
           >
             View All News
-            <ArrowRight className="h-3 w-3" />
+            <ArrowRight className="w-3 h-3" />
           </Link>
         </motion.div>
 
@@ -316,7 +316,7 @@ const FeaturedNewsSection = () => {
           </div>
         ) : error ? (
           // Error state
-          <div className="p-8 text-center text-red-500 bg-red-50 rounded-lg">
+          <div className="p-8 text-center text-red-500 rounded-lg bg-red-50">
             <p>Error loading news. Please try again later.</p>
           </div>
         ) : featuredArticles.length > 0 ? (
@@ -330,7 +330,7 @@ const FeaturedNewsSection = () => {
               transition={{ duration: 0.5 }}
             >
               <Link to={`/news/${featuredArticles[0].id}`}>
-                <div className="relative overflow-hidden rounded-xl group h-full">
+                <div className="relative h-full overflow-hidden rounded-xl group">
                   <motion.img 
                     src={featuredArticles[0].featured_image_url || '/placeholder-news.jpg'} 
                     alt={featuredArticles[0].title} 
@@ -342,11 +342,11 @@ const FeaturedNewsSection = () => {
                       (e.target as HTMLImageElement).src = '/placeholder-news.jpg';
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent group-hover:via-black/60 transition-all duration-300" />
+                  <div className="absolute inset-0 transition-all duration-300 bg-gradient-to-t from-black/80 via-black/50 to-transparent group-hover:via-black/60" />
                   
                   {/* Category Badge */}
                   {featuredArticles[0].tags && featuredArticles[0].tags.length > 0 && (
-                    <div className="absolute top-3 left-3 px-3 py-1 bg-primary/90 rounded-full text-xs text-primary-foreground">
+                    <div className="absolute px-3 py-1 text-xs rounded-full top-3 left-3 bg-primary/90 text-primary-foreground">
                       {featuredArticles[0].tags[0]}
                     </div>
                   )}
@@ -357,13 +357,13 @@ const FeaturedNewsSection = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
                     >
-                      <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                      <h3 className="mb-2 text-xl font-bold text-white sm:text-2xl">
                         {featuredArticles[0].title}
                       </h3>
-                      <p className="text-white/80 hidden md:block mb-2 line-clamp-2 text-sm sm:text-base">
+                      <p className="hidden mb-2 text-sm text-white/80 md:block line-clamp-2 sm:text-base">
                         {featuredArticles[0].summary}
                       </p>
-                      <p className="text-white/60 text-xs">
+                      <p className="text-xs text-white/60">
                         {featuredArticles[0].publish_date
                           ? format(parseISO(featuredArticles[0].publish_date), 'MMMM d, yyyy')
                           : format(parseISO(featuredArticles[0].created_at), 'MMMM d, yyyy')}
@@ -388,7 +388,7 @@ const FeaturedNewsSection = () => {
             >
               {featuredArticles[1] && (
                 <Link to={`/news/${featuredArticles[1].id}`}>
-                  <div className="relative overflow-hidden rounded-xl group h-full">
+                  <div className="relative h-full overflow-hidden rounded-xl group">
                     <motion.img 
                       src={featuredArticles[1].featured_image_url || '/placeholder-news.jpg'} 
                       alt={featuredArticles[1].title} 
@@ -400,20 +400,20 @@ const FeaturedNewsSection = () => {
                         (e.target as HTMLImageElement).src = '/placeholder-news.jpg';
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:via-black/60 transition-all duration-300" />
+                    <div className="absolute inset-0 transition-all duration-300 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:via-black/60" />
                     
                     {/* Category Badge */}
                     {featuredArticles[1].tags && featuredArticles[1].tags.length > 0 && (
-                      <div className="absolute top-3 left-3 px-3 py-1 bg-primary/90 rounded-full text-xs text-primary-foreground">
+                      <div className="absolute px-3 py-1 text-xs rounded-full top-3 left-3 bg-primary/90 text-primary-foreground">
                         {featuredArticles[1].tags[0]}
                       </div>
                     )}
                     
                     <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-lg font-bold text-white mb-1">
+                      <h3 className="mb-1 text-lg font-bold text-white">
                         {featuredArticles[1].title}
                       </h3>
-                      <p className="text-white/60 text-xs">
+                      <p className="text-xs text-white/60">
                         {formatDistanceToNow(
                           parseISO(featuredArticles[1].publish_date || featuredArticles[1].created_at), 
                           { addSuffix: false }
@@ -436,11 +436,11 @@ const FeaturedNewsSection = () => {
                   transition={{ duration: 0.4, delay: 0.2 + (i * 0.1) }}
                 >
                   <Link to={`/news/${featuredArticles[index].id}`}>
-                    <div className="relative overflow-hidden rounded-xl group h-full">
+                    <div className="relative h-full overflow-hidden rounded-xl group">
                       <motion.img 
                         src={featuredArticles[index].featured_image_url || '/placeholder-news.jpg'} 
                         alt={featuredArticles[index].title} 
-                        className="w-full h-full object-cover aspect-video"
+                        className="object-cover w-full h-full aspect-video"
                         initial={{ scale: 1 }}
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.4 }}
@@ -448,7 +448,7 @@ const FeaturedNewsSection = () => {
                           (e.target as HTMLImageElement).src = '/placeholder-news.jpg';
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent group-hover:from-black/90 transition-all duration-300" />
+                      <div className="absolute inset-0 transition-all duration-300 bg-gradient-to-t from-black/80 to-transparent group-hover:from-black/90" />
                       
                       {/* Category Badge */}
                       {featuredArticles[index].tags && featuredArticles[index].tags.length > 0 && (
@@ -470,7 +470,7 @@ const FeaturedNewsSection = () => {
           </div>
         ) : (
           // Empty state
-          <div className="p-8 text-center text-muted-foreground bg-muted/30 rounded-lg">
+          <div className="p-8 text-center rounded-lg text-muted-foreground bg-muted/30">
             <p>No news articles available at this time.</p>
           </div>
         )}
@@ -671,13 +671,13 @@ const PlayerStatsSection = () => {
 
   if (isLoading) {
     return (
-      <section className="py-16 lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 overflow-hidden">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-12 text-center text-foreground">
+      <section className="py-16 overflow-hidden lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5">
+        <div className="container px-4 mx-auto">
+          <h2 className="mb-12 text-2xl font-bold text-center md:text-3xl text-foreground">
            TOP PLAYER STATISTICS
           </h2>
           
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+          <div className="flex flex-col items-center justify-center gap-8 md:flex-row md:gap-16">
             <Skeleton className="w-[280px] h-[380px] md:w-[350px] md:h-[450px] rounded-lg" />
             <Skeleton className="w-[280px] h-[200px] rounded-lg" />
           </div>
@@ -688,9 +688,9 @@ const PlayerStatsSection = () => {
 
   if (topPlayers.length === 0) {
     return (
-      <section className="py-16 lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 overflow-hidden">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
+      <section className="py-16 overflow-hidden lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5">
+        <div className="container px-4 mx-auto text-center">
+          <h2 className="mb-6 text-2xl font-bold md:text-3xl text-foreground">
            TOP PLAYER STATISTICS
           </h2>
           <p className="text-muted-foreground">No player statistics available yet.</p>
@@ -700,10 +700,10 @@ const PlayerStatsSection = () => {
   }
 
   return (
-    <section className="py-16 lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 overflow-hidden">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold mb-12 text-center text-foreground">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+    <section className="py-16 overflow-hidden lg:py-24 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5">
+      <div className="container px-4 mx-auto">
+        <h2 className="mb-12 text-2xl font-bold text-center md:text-3xl text-foreground">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70">
           TOP PLAYER STATISTICS
           </span>
         </h2>
@@ -712,7 +712,7 @@ const PlayerStatsSection = () => {
           {/* Navigation Buttons - Always visible */}
           <motion.button
             onClick={prevSlide}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-background/90 hover:bg-background rounded-full p-2 sm:p-3 shadow-lg"
+            className="absolute z-10 p-2 -translate-y-1/2 rounded-full shadow-lg left-2 sm:left-4 top-1/2 bg-background/90 hover:bg-background sm:p-3"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -720,7 +720,7 @@ const PlayerStatsSection = () => {
           </motion.button>
           <motion.button
             onClick={nextSlide}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 bg-background/90 hover:bg-background rounded-full p-2 sm:p-3 shadow-lg"
+            className="absolute z-10 p-2 -translate-y-1/2 rounded-full shadow-lg right-2 sm:right-4 top-1/2 bg-background/90 hover:bg-background sm:p-3"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -740,19 +740,19 @@ const PlayerStatsSection = () => {
                     exit={{ opacity: 0, rotateY: 20, scale: 0.9 }}
                     transition={{ type: "spring", stiffness: 100, damping: 20 }}
                   >
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full">
+                    <div className="flex flex-col items-center justify-center w-full gap-8 md:flex-row md:gap-16">
                       {/* Player Image with Card */}
                       <motion.div
                         className="relative group"
                         whileHover={{ scale: 1.02 }}
                       >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-primary-foreground/30 rounded-lg blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-gradient-pulse"></div>
-                        <div className="relative bg-background rounded-lg overflow-hidden shadow-xl border border-border">
+                        <div className="absolute transition duration-1000 rounded-lg opacity-75 -inset-1 bg-gradient-to-r from-primary/30 to-primary-foreground/30 blur-lg group-hover:opacity-100 group-hover:duration-200 animate-gradient-pulse"></div>
+                        <div className="relative overflow-hidden border rounded-lg shadow-xl bg-background border-border">
                           <div className="h-[250px] sm:h-[350px] md:h-[450px] w-[280px] sm:w-[350px] overflow-hidden">
                     <img
                       src={player.image}
                       alt={player.name}
-                              className="h-full w-full object-cover object-top"
+                              className="object-cover object-top w-full h-full"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/500x600?text=Player+Image';
                               }}
@@ -764,7 +764,7 @@ const PlayerStatsSection = () => {
                               style={{ borderColor: player.accentColor, borderWidth: '2px' }}
                             >
                               <player.statIcon className="w-4 h-4" style={{ color: player.accentColor }} />
-                              <span className="font-bold text-lg text-white">{player.statValue}</span>
+                              <span className="text-lg font-bold text-white">{player.statValue}</span>
                             </div>
                           </div>
                           
@@ -772,7 +772,7 @@ const PlayerStatsSection = () => {
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center justify-between mb-1">
                                 <div className="flex items-center gap-2">
-                                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 backdrop-blur-sm flex items-center justify-center text-white font-bold">
+                                  <div className="flex items-center justify-center w-8 h-8 font-bold text-white rounded-full sm:h-10 sm:w-10 bg-primary/10 backdrop-blur-sm">
                                     {player.number || '#'}
                                   </div>
                                   <p className="text-sm text-white/80">{player.position}</p>
@@ -780,7 +780,7 @@ const PlayerStatsSection = () => {
                               
                               </div>
                               
-                              <h3 className="text-lg sm:text-xl text-white font-bold">{player.name}</h3>
+                              <h3 className="text-lg font-bold text-white sm:text-xl">{player.name}</h3>
                             </div>
                           </div>
                         </div>
@@ -794,14 +794,14 @@ const PlayerStatsSection = () => {
                     animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.2, type: "spring" }}
                         >
-                          <div className="text-center mb-6">
-                            <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">{player.statLabel}</h3>
-                            <div className="h-1 w-20 mx-auto rounded-full" style={{ background: player.accentColor }} />
+                          <div className="mb-6 text-center">
+                            <h3 className="mb-1 text-lg font-bold sm:text-xl text-foreground">{player.statLabel}</h3>
+                            <div className="w-20 h-1 mx-auto rounded-full" style={{ background: player.accentColor }} />
                           </div>
                           
                           <div className="flex items-center justify-center mb-4">
                             <motion.div 
-                              className="text-3xl md:text-8xl font-extrabold text-transparent bg-clip-text"
+                              className="text-3xl font-extrabold text-transparent md:text-8xl bg-clip-text"
                               style={{ 
                                 color: `${player.accentColor}` 
                               }}
@@ -824,7 +824,7 @@ const PlayerStatsSection = () => {
                             transition={{ delay: 0.5 }}
                           >
                             <div 
-                              className="p-3 rounded-lg flex items-center justify-center"
+                              className="flex items-center justify-center p-3 rounded-lg"
                               style={{ backgroundColor: `${player.accentColor}20` }}
                             >
                               <player.statIcon className="w-5 h-5 mr-2" style={{ color: player.accentColor }} />
@@ -841,7 +841,7 @@ const PlayerStatsSection = () => {
                         >
                           <Link 
                             to={`/player/${player.id}`} 
-                            className="hidden px-6 md:py-3 rounded-full text-white font-medium md:flex items-center gap-2"
+                            className="items-center hidden gap-2 px-6 font-medium text-white rounded-full md:py-3 md:flex"
                             style={{ 
                               background: `linear-gradient(135deg, ${player.accentColor}, var(--primary))` 
                             }}
@@ -886,21 +886,21 @@ export default function Home() {
   return (
     <div className="space-y-0">
       {/* Hero Section - Made fullscreen with video background */}
-      <section className="relative h-screen flex items-center  md:items-end justify-center">
+      <section className="relative flex items-center justify-center h-screen md:items-end">
         <div
-          className="absolute inset-0 bg-cover h-full w-auto bg-top"
+          className="absolute inset-0 w-auto h-full bg-top bg-cover"
           style={{
             backgroundImage: `url(${HomeImage})`,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/50" />
         </div>
-        <div className="relative mx-auto px-4 mb-0 md:mb-28 text-center text-white">
+        <div className="relative px-4 mx-auto mb-0 text-center text-white md:mb-28">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-8xl font-extrabold mb-4 md:mb-6 tracking-tight"
+            className="mb-4 text-4xl font-extrabold tracking-tight md:text-8xl md:mb-6"
           >
       Welcome to The Board FC
           </motion.h1>
@@ -908,7 +908,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg sm:text-xl md:text-2xl underline lg:text-3xl mb-6 md:mb-8 font-light max-w-3xl mx-auto"
+            className="max-w-3xl mx-auto mb-6 text-lg font-light underline sm:text-xl md:text-2xl lg:text-3xl md:mb-8"
           >
             The Beautiful Game's Architects | #Better Together
           </motion.p>
@@ -919,7 +919,7 @@ export default function Home() {
             className="flex flex-row justify-center gap-4"
           >
             <Link to={'/fixtures'}>
-            <Button size="lg" className="text-base sm:text-lg px-4 sm:px-8 py-5 sm:py-6">
+            <Button size="lg" className="px-4 py-5 text-base sm:text-lg sm:px-8 sm:py-6">
               View Fixtures
             </Button>
             </Link>
@@ -927,7 +927,7 @@ export default function Home() {
             <Button 
               variant="outline" 
               size="lg" 
-              className="text-base sm:text-lg px-4 sm:px-8 py-5 sm:py-6 sm:mt-0 bg-white/10 hover:bg-white/20 text-white border-white/20"
+              className="px-4 py-5 text-base text-white sm:text-lg sm:px-8 sm:py-6 sm:mt-0 bg-white/10 hover:bg-white/20 border-white/20"
             >
               Meet the Team
             </Button>
@@ -936,12 +936,12 @@ export default function Home() {
         </div>
         {/* Scroll indicator */}
         <motion.div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute -translate-x-1/2 bottom-8 left-1/2"
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-2 bg-white/50 rounded-full mt-2" />
+          <div className="flex justify-center w-6 h-10 border-2 rounded-full border-white/50">
+            <div className="w-1 h-2 mt-2 rounded-full bg-white/50" />
           </div>
         </motion.div>
       </section>

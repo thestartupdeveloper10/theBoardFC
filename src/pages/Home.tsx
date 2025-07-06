@@ -48,7 +48,7 @@ const MatchCard = ({ match }: { match: Match }) => {
               alt={match.homeTeam.name} 
               className="object-cover w-24 h-24 rounded-md dark:bg-gray-200"
             />
-            <span className="text-sm font-bold sm:text-base text-foreground">{match.homeTeam.name}</span>
+            <span className="mt-2 text-sm font-bold sm:text-base text-foreground">{match.homeTeam.name}</span>
           </div>
           <div className="px-3 text-base font-extrabold sm:text-xl text-foreground">
             {match.score || match.time}
@@ -59,7 +59,7 @@ const MatchCard = ({ match }: { match: Match }) => {
               alt={match.awayTeam.name} 
               className="object-cover w-24 h-24 rounded-md dark:bg-gray-200"
             />
-            <span className="text-sm font-bold sm:text-base text-foreground">{match.awayTeam.name}</span>
+            <span className="mt-2 text-sm font-bold sm:text-base text-foreground">{match.awayTeam.name}</span>
            
           </div>
         </div>
@@ -83,6 +83,7 @@ const MatchesSection = () => {
         const status = fixture.status.toLowerCase();
         return !['postponed', 'cancelled'].includes(status);
       })
+      .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime())
       .slice(0, 3)
       .map(fixture => {
         // Adjust the match date by subtracting 3 hours
@@ -598,7 +599,7 @@ const PlayerStatsSection = () => {
           name: `${player.first_name} ${player.last_name}`,
           number: player.player_number,
           position: player.position,
-          image: player.profile_image_url || 'https://via.placeholder.com/500x600?text=Player+Image',
+          image: player.profile_image_url || 'https://png.pngtree.com/png-vector/20240518/ourlarge/pngtree-soccer-player-png-image_12491618.png',
           statType: 'appearances',
           statValue: mostAppearances.matches_played,
     statIcon: Clock,

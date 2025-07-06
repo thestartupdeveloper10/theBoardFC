@@ -76,7 +76,7 @@ const StatCard = ({
   
   return (
     <Card className={`p-4 relative overflow-hidden ${color.border}`}>
-      <div className="flex items-center gap-3 z-10 relative">
+      <div className="relative z-10 flex items-center gap-3">
         <div className={`${color.secondary} p-3 rounded-lg`}>
           <Icon className={`h-5 w-5 ${color.text}`} />
         </div>
@@ -122,7 +122,7 @@ const StatChart = ({
           const heightPercentage = (value / maxValue) * 100;
           
           return (
-            <div key={stat.id} className="flex-1 flex flex-col items-center gap-1">
+            <div key={stat.id} className="flex flex-col items-center flex-1 gap-1">
               <div className="text-xs text-center">{value}</div>
               <motion.div
                 initial={{ height: 0 }}
@@ -130,7 +130,7 @@ const StatChart = ({
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 className={`w-full bg-gradient-to-t from-${color.gradient} to-${color.gradient}/60 rounded-t-md`}
               />
-              <div className="text-xs text-muted-foreground truncate w-full text-center">
+              <div className="w-full text-xs text-center truncate text-muted-foreground">
                 {stat.season.split('-')[0]}
               </div>
             </div>
@@ -175,16 +175,16 @@ export default function PlayerStats() {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-12 h-12 border-b-2 rounded-full animate-spin border-primary"></div>
       </div>
     );
   }
   
   if (!player) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">Player Not Found</h1>
+      <div className="container px-4 py-16 mx-auto text-center">
+        <h1 className="mb-4 text-2xl font-bold">Player Not Found</h1>
         <p className="mb-8">Sorry, we couldn't find the player you're looking for.</p>
         <Link to="/team" className="text-blue-600 hover:underline">
           Return to Team Page
@@ -194,28 +194,28 @@ export default function PlayerStats() {
   }
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container px-4 py-8 mx-auto">
       {/* Hero Section with Player Info */}
       <div className="relative mb-12">
         {/* Background gradient */}
         <div className={`absolute inset-x-0 top-0 h-64 bg-gradient-to-r ${positionStyle.primary} opacity-80 rounded-xl`} />
         
         {/* Back button */}
-        <div className="relative z-10 mb-8 pt-6">
+        <div className="relative z-10 pt-6 mb-8">
           <Button 
             variant="ghost" 
             className="bg-background/80 backdrop-blur-sm" 
             asChild
           >
             <Link to="/team">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Team
             </Link>
           </Button>
         </div>
         
         {/* Player info grid */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* Left column - Image and basic info */}
           <div className="flex flex-col items-center text-center">
             <motion.div
@@ -228,12 +228,12 @@ export default function PlayerStats() {
               <Avatar className="w-48 h-48 border-4 border-background">
                 {player.profile_image_url ? (
                   <AvatarImage 
-                    src={player.profile_image_url} 
+                    src={player.profile_image_url || 'https://png.pngtree.com/png-vector/20240518/ourlarge/pngtree-soccer-player-png-image_12491618.png'} 
                     alt={`${player.first_name} ${player.last_name}`} 
-                    className="object-cover object-top h-full w-full"
+                    className="object-cover object-top w-full h-full"
                   />
                 ) : (
-                  <AvatarFallback className="bg-muted-foreground/10 text-4xl">
+                  <AvatarFallback className="text-4xl bg-muted-foreground/10">
                     {player.first_name[0]}{player.last_name[0]}
                   </AvatarFallback>
                 )}
@@ -245,7 +245,7 @@ export default function PlayerStats() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              <div className="bg-background/90 backdrop-blur-sm text-4xl font-bold rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-4xl font-bold rounded-full bg-background/90 backdrop-blur-sm">
                 {player.player_number || "?"}
               </div>
               
@@ -259,7 +259,7 @@ export default function PlayerStats() {
               
               <Badge 
                 variant={player.status === 'active' ? 'default' : 'destructive'}
-                className="uppercase text-xs font-bold"
+                className="text-xs font-bold uppercase"
               >
                 {player.status}
               </Badge>
@@ -271,7 +271,7 @@ export default function PlayerStats() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="space-y-4 flex flex-col justify-center"
+            className="flex flex-col justify-center space-y-4"
           >
             <div className={`p-4 rounded-lg bg-gradient-to-r ${positionStyle.secondary} backdrop-blur-sm`}>
             <h2 className="text-xl font-bold text-center">Player Details</h2>
@@ -333,7 +333,7 @@ export default function PlayerStats() {
               {player.bio ? (
                 <p>{player.bio}</p>
               ) : (
-                <p className="text-muted-foreground italic">No biography available for this player.</p>
+                <p className="italic text-muted-foreground">No biography available for this player.</p>
               )}
             </div>
           </motion.div>
@@ -342,7 +342,7 @@ export default function PlayerStats() {
       
       {/* Stats Section */}
       <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <motion.h2
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -382,7 +382,7 @@ export default function PlayerStats() {
           
           <TabsContent value="overview">
             {/* Basic Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div className="grid grid-cols-1 gap-6 mb-10 md:grid-cols-2 lg:grid-cols-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -453,18 +453,18 @@ export default function PlayerStats() {
             
             {/* Charts - Adjust for goalkeepers */}
             {playerStats.length > 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 {player?.position === 'Goalkeeper' ? (
                   <Card className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Team Performance with {player.first_name}</h3>
-                    <div className="flex justify-between items-center">
+                    <h3 className="mb-4 text-lg font-semibold">Team Performance with {player.first_name}</h3>
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Shield className={positionStyle.text} />
                         <span>Team Clean Sheets</span>
                       </div>
-                      <span className="font-bold text-xl">{cleanSheets || 0}</span>
+                      <span className="text-xl font-bold">{cleanSheets || 0}</span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden mt-4">
+                    <div className="h-2 mt-4 overflow-hidden rounded-full bg-muted">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(((cleanSheets || 0) / 20) * 100, 100)}%` }}
@@ -497,12 +497,12 @@ export default function PlayerStats() {
           </TabsContent>
           
           <TabsContent value="performance">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               {/* Discipline */}
               <Card className="p-6">
-                <h3 className="text-lg font-bold mb-4">Discipline</h3>
+                <h3 className="mb-4 text-lg font-bold">Discipline</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-6 bg-yellow-400"></div>
                       <span>Yellow Cards</span>
@@ -510,7 +510,7 @@ export default function PlayerStats() {
                     <span className="font-bold">{currentStats?.yellow_cards || 0}</span>
                   </div>
                   
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-6 bg-red-500"></div>
                       <span>Red Cards</span>
@@ -518,7 +518,7 @@ export default function PlayerStats() {
                     <span className="font-bold">{currentStats?.red_cards || 0}</span>
                   </div>
                   
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min((currentStats?.yellow_cards || 0) * 10, 100)}%` }}
@@ -531,14 +531,14 @@ export default function PlayerStats() {
               
               {/* Playing Time */}
               <Card className="p-6">
-                <h3 className="text-lg font-bold mb-4">Playing Time</h3>
+                <h3 className="mb-4 text-lg font-bold">Playing Time</h3>
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-muted-foreground">Minutes Played</span>
                       <span className="font-bold">{currentStats?.minutes_played || 0}</span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(((currentStats?.minutes_played || 0) / 3420) * 100, 100)}%` }}
@@ -546,7 +546,7 @@ export default function PlayerStats() {
                         className={`h-full bg-gradient-to-r ${positionStyle.primary}`}
                       />
                     </div>
-                    <div className="text-xs mt-1 text-muted-foreground">
+                    <div className="mt-1 text-xs text-muted-foreground">
                       {Math.round(((currentStats?.minutes_played || 0) / 3420) * 100)}% of maximum
                     </div>
                   </div>
@@ -556,7 +556,7 @@ export default function PlayerStats() {
                       <span className="text-muted-foreground">Matches Played</span>
                       <span className="font-bold">{currentStats?.matches_played || 0}</span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(((currentStats?.matches_played || 0) / 38) * 100, 100)}%` }}
@@ -564,7 +564,7 @@ export default function PlayerStats() {
                         className={`h-full bg-gradient-to-r ${positionStyle.primary}`}
                       />
                     </div>
-                    <div className="text-xs mt-1 text-muted-foreground">
+                    <div className="mt-1 text-xs text-muted-foreground">
                       {Math.round(((currentStats?.matches_played || 0) / 38) * 100)}% of matches
                     </div>
                   </div>
@@ -615,7 +615,7 @@ export default function PlayerStats() {
                   )}
                 </tbody>
                 {playerStats.length > 0 && (
-                  <tfoot className="bg-muted/30 font-medium">
+                  <tfoot className="font-medium bg-muted/30">
                     <tr>
                       <td className="p-3">Career Total</td>
                       <td className="p-3 text-center">

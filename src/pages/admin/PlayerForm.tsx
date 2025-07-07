@@ -32,6 +32,7 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
   const [height, setHeight] = useState(player?.height?.toString() || '');
   const [weight, setWeight] = useState(player?.weight?.toString() || '');
   const [bio, setBio] = useState(player?.bio || '');
+  const [joinedDate, setJoinedDate] = useState(player?.joined_date || new Date().toISOString().split('T')[0]);
   const [status, setStatus] = useState(player?.status || 'active');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,10 +61,11 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
         weight: weight ? parseInt(weight, 10) : null,
         bio,
         profile_image_url: profileImageUrl,
+
         status,
-        ...(isEditing ? {} : { 
+        ...(isEditing ? { joined_date: joinedDate } : { 
           created_by: user?.id,
-          joined_date: new Date().toISOString().split('T')[0] 
+          joined_date: joinedDate || new Date().toISOString().split('T')[0] 
         })
       };
       
@@ -116,7 +118,7 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
   
   return (
     <ScrollArea className="h-[calc(100vh-200px)] px-4 md:px-6">
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto py-6 space-y-6 px-2">
+      <form onSubmit={handleSubmit} className="max-w-2xl px-2 py-6 mx-auto space-y-6">
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
@@ -127,7 +129,7 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
           {/* Personal Information Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Personal Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
@@ -168,7 +170,7 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
           {/* Player Details Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Player Details</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="playerNumber">Player Number</Label>
                 <Input
@@ -211,7 +213,7 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
               />
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="height">Height (cm)</Label>
                 <Input
@@ -248,7 +250,15 @@ export function PlayerForm({ player, onSuccess }: PlayerFormProps) {
                 rows={3}
               />
             </div>
-            
+            <div className="space-y-2">
+              <Label htmlFor="joinedDate">Joined Date</Label>
+              <Input
+                id="joinedDate"
+                type="date"
+                value={joinedDate}
+                onChange={(e) => setJoinedDate(e.target.value)}
+              />
+              </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select value={status} onValueChange={setStatus}>

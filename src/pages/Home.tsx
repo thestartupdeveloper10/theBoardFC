@@ -74,74 +74,74 @@ const MatchesSection = () => {
   const { data: fixtures = [], isLoading, error } = useFixtures();
   
   // Convert API fixtures to match the format expected by MatchCard
-  const formattedMatches = useMemo(() => {
-    if (!fixtures || fixtures.length === 0) return [];
-    
-    // Filter out postponed and cancelled matches, then sort and limit to 3
-    return fixtures
-      .filter(fixture => {
-        const status = fixture.status.toLowerCase();
-        return !['postponed', 'cancelled'].includes(status);
-      })
-      .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime())
-      .slice(0, 3)
-      .map(fixture => {
-        // Adjust the match date by subtracting 3 hours
-        const matchDate = subHours(parseISO(fixture.match_date), 3);
+ const formattedMatches = useMemo(() => {
+  if (!fixtures || fixtures.length === 0) return [];
+
+  // Filter out postponed and cancelled matches, then sort DESCENDING and take the last 3
+  return fixtures
+    .filter(fixture => {
+      const status = fixture.status.toLowerCase();
+      return !['postponed', 'cancelled'].includes(status);
+    })
+    .sort((a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime()) // Descending order
+    .slice(0, 3) // Take the 3 most recent
+    .reverse() // So the oldest of the 3 is on the left
+    .map(fixture => {
+      // Adjust the match date by subtracting 3 hours
+      const matchDate = subHours(parseISO(fixture.match_date), 3);
+
+      // Determine if the match is completed or upcoming
+      const isCompleted = fixture.status.toLowerCase() === 'completed';
+      const isUpcoming = ['upcoming', 'in progress'].includes(fixture.status.toLowerCase());
+
+      // Format the date
+      const formattedDate = format(matchDate, 'EEE dd MMM yyyy').toUpperCase();
+
+      // Format score or time with adjusted date
+      let scoreOrTime = format(matchDate, 'HH:mm');
+      if (isCompleted && fixture.home_score !== null && fixture.away_score !== null) {
+        scoreOrTime = `${fixture.home_score} - ${fixture.away_score}`;
+      }
+
+      // Use opponent_logo_url if available, otherwise use default
+      const opponentLogo = fixture.opponent_logo_url || opponent;
+
+      // Determine which teams are playing
+      const homeTeam = fixture.is_home_game 
+        ? { name: 'The Board FC', logo: logo } 
+        : { name: fixture.opponent, logo: opponentLogo };
         
-        // Determine if the match is completed or upcoming
-        const isCompleted = fixture.status.toLowerCase() === 'completed';
-        const isUpcoming = ['upcoming', 'in progress'].includes(fixture.status.toLowerCase());
-        
-        // Format the date
-        const formattedDate = format(matchDate, 'EEE dd MMM yyyy').toUpperCase();
-        
-        // Format score or time with adjusted date
-        let scoreOrTime = format(matchDate, 'HH:mm');
-        if (isCompleted && fixture.home_score !== null && fixture.away_score !== null) {
-          scoreOrTime = `${fixture.home_score} - ${fixture.away_score}`;
-        }
-        
-        // Use opponent_logo_url if available, otherwise use default
-        const opponentLogo = fixture.opponent_logo_url || opponent;
-        
-        // Determine which teams are playing
-        const homeTeam = fixture.is_home_game 
-          ? { name: 'The Board FC', logo: logo } 
-          : { name: fixture.opponent, logo: opponentLogo };
-          
-        const awayTeam = fixture.is_home_game 
-          ? { name: fixture.opponent, logo: opponentLogo } 
-          : { name: 'The Board FC', logo: logo };
-        
-        // Format the competition name
-        let competition = fixture.competition || 'Other Match';
-        if (competition.toLowerCase().includes('league')) {
-          competition = 'LEAGUE';
-        } else if (competition.toLowerCase().includes('cup')) {
-          competition = 'CUP';
-        } else if (competition.toLowerCase().includes('friendly')) {
-          competition = 'FRIENDLY';
-        } else {
-          competition = competition.toUpperCase();
-        }
-        
-        return {
-          id: fixture.id,
-          date: formattedDate,
-          competition: competition,
-          homeTeam,
-          awayTeam,
-          score: isCompleted ? scoreOrTime : null,
-          time: isUpcoming ? scoreOrTime : null,
-          status: isCompleted ? 'FT' : fixture.status.toUpperCase(),
-          broadcaster: null, // You could add this data to your fixtures table if needed
-          hasMatchCentre: true,
-          hasTickets: isUpcoming && fixture.ticket_link !== null
-        };
-      });
-  }, [fixtures]);
-  
+      const awayTeam = fixture.is_home_game 
+        ? { name: fixture.opponent, logo: opponentLogo } 
+        : { name: 'The Board FC', logo: logo };
+
+      // Format the competition name
+      let competition = fixture.competition || 'Other Match';
+      if (competition.toLowerCase().includes('league')) {
+        competition = 'LEAGUE';
+      } else if (competition.toLowerCase().includes('cup')) {
+        competition = 'CUP';
+      } else if (competition.toLowerCase().includes('friendly')) {
+        competition = 'FRIENDLY';
+      } else {
+        competition = competition.toUpperCase();
+      }
+
+      return {
+        id: fixture.id,
+        date: formattedDate,
+        competition: competition,
+        homeTeam,
+        awayTeam,
+        score: isCompleted ? scoreOrTime : null,
+        time: isUpcoming ? scoreOrTime : null,
+        status: isCompleted ? 'FT' : fixture.status.toUpperCase(),
+        broadcaster: null,
+        hasMatchCentre: true,
+        hasTickets: isUpcoming && fixture.ticket_link !== null
+      };
+    });
+}, [fixtures]);
   return (
     <section className="relative py-10 sm:py-12 md:py-16 bg-muted dark:bg-muted/50">
       <h2 className="mb-6 text-2xl font-bold text-center sm:text-3xl md:mb-8 text-foreground">Matches</h2>
@@ -480,18 +480,7 @@ const FeaturedNewsSection = () => {
   );
 };
 
-// Add this new interface and data
-// interface PlayerStat {
-//   id: number
-//   name: string
-//   number: string
-//   position: string
-//   image: string
-//   statType: 'goals' | 'assists' | 'cleanSheets' | 'appearances'
-//   statValue: number
-//   statIcon: typeof Trophy | typeof Target | typeof Shield | typeof Clock
-//   statLabel: string
-// }
+
 
 
 // Enhanced PlayerStatsSection with auto-scroll and real data

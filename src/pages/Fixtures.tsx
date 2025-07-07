@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Ticket, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFixtures } from '@/services/queries'
+import logo from '@/assets/images/logo.png'
 
 
 
@@ -27,6 +28,7 @@ interface Fixture {
   status: string;
   home_score: number | null;
   away_score: number | null;
+  opponent_logo_url?: string;
 }
 
 // Competition badge styles
@@ -90,11 +92,11 @@ const MatchCard = ({ fixture }: { fixture: Fixture }) => {
   };
   
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
+    <Card className="overflow-hidden transition-shadow duration-300 hover:shadow-md">
       <CardHeader className="p-4 bg-muted/30">
-        <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-between">
+        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2 text-sm">
-            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+            <CalendarIcon className="w-4 h-4 text-muted-foreground" />
             <span className="font-medium">{format(matchDate, 'EEEE, MMMM d, yyyy')}</span>
           </div>
           
@@ -113,57 +115,66 @@ const MatchCard = ({ fixture }: { fixture: Fixture }) => {
       </CardHeader>
       
       <CardContent className="p-4 pt-6">
-        <div className="grid grid-cols-7 items-center">
+        <div className="grid items-center grid-cols-7">
           {/* Home Team */}
-          <div className="col-span-3 flex flex-col items-center sm:items-end text-center sm:text-right">
-            <div className="font-bold text-base sm:text-lg">{homeTeam}</div>
+          <div className="flex flex-col items-center col-span-3 text-center sm:items-end sm:text-right">
+            <img 
+              src={homeTeam === 'The Board FC' ? logo : fixture.opponent_logo_url} 
+              alt={homeTeam} 
+              className="object-cover w-24 h-24 rounded-md dark:bg-gray-200"
+            />
+            <div className="mt-2 text-base font-bold sm:text-lg">{homeTeam}</div>
             {fixture.is_home_game && <div className="text-xs text-muted-foreground">(Home)</div>}
       </div>
           
           {/* Score */}
-          <div className="col-span-1 flex justify-center px-2 sm:px-4">
+          <div className="flex justify-center col-span-1 px-2 sm:px-4">
             {scoreDisplay() ? (
               <div className={`font-bold text-xl ${fixture.status.toLowerCase() === 'in progress' ? 'animate-pulse text-primary' : ''}`}>
                 {scoreDisplay()}
         </div>
           ) : (
-              <div className="text-muted-foreground font-medium">vs</div>
+              <div className="font-medium text-muted-foreground">vs</div>
           )}
         </div>
           
           {/* Away Team */}
-          <div className="col-span-3 flex flex-col items-center sm:items-start text-center sm:text-left">
-            <div className="font-bold text-base sm:text-lg">{awayTeam}</div>
-            {!fixture.is_home_game && <div className="text-xs text-muted-foreground">(Away)</div>}
+          <div className="flex flex-col items-center col-span-3 text-center sm:items-start sm:text-left">
+            <img 
+              src={awayTeam === 'The Board FC' ? logo : fixture.opponent_logo_url} 
+              alt={awayTeam} 
+              className="object-cover w-24 h-24 rounded-md dark:bg-gray-200"
+            />
+            <div className="mt-2 text-base font-bold sm:text-lg">{awayTeam}</div>
           </div>
         </div>
         
         {/* Match Info - FIXED TIME FORMAT */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 mt-6 sm:grid-cols-2">
           <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Clock className="w-4 h-4 text-muted-foreground" />
             <span>{format(matchDate, 'HH:mm')}</span>
           </div>
           
           <div className="flex items-center gap-2 text-sm">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <MapPin className="w-4 h-4 text-muted-foreground" />
             <span>{fixture.location}</span>
       </div>
         </div>
         
         {/* Notes (if available) */}
         {fixture.notes && (
-          <div className="mt-4 text-sm text-muted-foreground border-t pt-4 border-border">
+          <div className="pt-4 mt-4 text-sm border-t text-muted-foreground border-border">
             {fixture.notes}
           </div>
         )}
         
         {/* Ticket Link (if available) */}
         {fixture.ticket_link && fixture.status.toLowerCase() === 'upcoming' && (
-          <div className="mt-4 pt-4 border-t border-border">
+          <div className="pt-4 mt-4 border-t border-border">
             <Button className="w-full sm:w-auto" size="sm" asChild>
               <a href={fixture.ticket_link} target="_blank" rel="noopener noreferrer">
-                <Ticket className="mr-2 h-4 w-4" /> Buy Tickets
+                <Ticket className="w-4 h-4 mr-2" /> Buy Tickets
               </a>
             </Button>
         </div>
@@ -262,19 +273,19 @@ export default function Fixtures() {
   }, [fixtures]);
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container px-4 py-8 mx-auto space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="space-y-2 text-center"
       >
-        <h1 className="text-3xl sm:text-4xl font-bold">Fixtures & Results</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">Fixtures & Results</h1>
         <p className="text-muted-foreground">Stay up to date with all The Board FC matches.</p>
       </motion.div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-end">
+      <div className="flex flex-col justify-end gap-4 sm:flex-row">
         <Select value={competitionFilter} onValueChange={setCompetitionFilter}>
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by competition" />
@@ -290,19 +301,19 @@ export default function Fixtures() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map(i => (
                 <Card key={i} className="overflow-hidden">
                   <CardHeader className="p-4">
-                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="w-full h-6" />
                   </CardHeader>
                   <CardContent className="p-4">
                     <div className="space-y-4">
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-20 w-full" />
+                      <Skeleton className="w-full h-10" />
+                      <Skeleton className="w-full h-20" />
                     </div>
                   </CardContent>
                 </Card>
@@ -314,7 +325,7 @@ export default function Fixtures() {
             </div>
           ) : (
           <Tabs defaultValue="upcoming" className="w-full">
-              <TabsList className="grid w-full h-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-8">
+              <TabsList className="grid w-full h-full grid-cols-2 mb-8 sm:grid-cols-3 md:grid-cols-5">
                 <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
                 <TabsTrigger value="completed">Completed</TabsTrigger>
                 <TabsTrigger value="postponed">Postponed/Cancelled</TabsTrigger>
@@ -323,7 +334,7 @@ export default function Fixtures() {
             <TabsContent value="upcoming">
               <ScrollArea className="h-[600px] pr-4">
                   {groupedFixtures.upcoming.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
+                    <div className="py-12 text-center text-muted-foreground">
                       No upcoming matches found.
                     </div>
                   ) : (
@@ -348,7 +359,7 @@ export default function Fixtures() {
             <TabsContent value="completed">
               <ScrollArea className="h-[600px] pr-4">
                   {groupedFixtures.completed.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
+                    <div className="py-12 text-center text-muted-foreground">
                       No completed matches found.
                     </div>
                   ) : (
@@ -373,7 +384,7 @@ export default function Fixtures() {
               <TabsContent value="postponed">
                 <ScrollArea className="h-[600px] pr-4">
                   {groupedFixtures.postponedOrCancelled.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
+                    <div className="py-12 text-center text-muted-foreground">
                       No postponed or cancelled matches found.
                     </div>
                   ) : (
@@ -408,7 +419,7 @@ export default function Fixtures() {
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="rounded-md border flex justify-center items-center"
+                className="flex items-center justify-center border rounded-md"
                 modifiers={{
                   hasFixture: (date) => 
                     datesWithFixtures.some(fixtureDate => 
@@ -431,14 +442,14 @@ export default function Fixtures() {
               />
               
               {/* Calendar Legend */}
-              <div className="mt-2 flex items-center justify-center text-sm text-muted-foreground">
-                <div className="w-4 h-4 rounded-full bg-primary mr-2"></div>
+              <div className="flex items-center justify-center mt-2 text-sm text-muted-foreground">
+                <div className="w-4 h-4 mr-2 rounded-full bg-primary"></div>
                 <span>Dates with matches</span>
               </div>
               
               {/* Selected Date Fixtures */}
               <div className="mt-6">
-                <h3 className="font-medium mb-4">
+                <h3 className="mb-4 font-medium">
                   {selectedDate ? (
                     <>Matches on {format(selectedDate, 'MMMM d, yyyy')}</>
                   ) : (
@@ -451,7 +462,7 @@ export default function Fixtures() {
                     {fixturesOnSelectedDate.map(fixture => (
                       <div 
                         key={fixture.id} 
-                        className="p-3 rounded-md bg-muted/50 border border-border"
+                        className="p-3 border rounded-md bg-muted/50 border-border"
                       >
                         <div className="flex justify-between mb-1">
                           <span className="text-sm">
@@ -468,7 +479,7 @@ export default function Fixtures() {
                     ))}
                   </div>
                 ) : selectedDate ? (
-                  <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-md">
+                  <div className="py-8 text-center rounded-md text-muted-foreground bg-muted/30">
                     No matches scheduled for this day.
                   </div>
                 ) : null}

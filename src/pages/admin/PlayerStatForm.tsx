@@ -36,7 +36,7 @@ export function PlayerStatForm({ playerId, stat, onSuccess }: PlayerStatFormProp
   const [assists, setAssists] = useState(stat?.assists?.toString() || '0');
   const [yellowCards, setYellowCards] = useState(stat?.yellow_cards?.toString() || '0');
   const [redCards, setRedCards] = useState(stat?.red_cards?.toString() || '0');
-  const [minutesPlayed, setMinutesPlayed] = useState(stat?.minutes_played?.toString() || '0');
+  // Remove minutesPlayed state
   
   const [availableSeasons, setAvailableSeasons] = useState<string[]>([]);
   const [usedSeasons, setUsedSeasons] = useState<string[]>([]);
@@ -88,6 +88,9 @@ export function PlayerStatForm({ playerId, stat, onSuccess }: PlayerStatFormProp
     }
   }
   
+  // Calculate minutesPlayed dynamically
+  const minutesPlayed = (parseInt(matchesPlayed, 10) || 0) * 90;
+  
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
@@ -102,7 +105,7 @@ export function PlayerStatForm({ playerId, stat, onSuccess }: PlayerStatFormProp
         assists: parseInt(assists, 10) || 0,
         yellow_cards: parseInt(yellowCards, 10) || 0,
         red_cards: parseInt(redCards, 10) || 0,
-        minutes_played: parseInt(minutesPlayed, 10) || 0,
+        minutes_played: minutesPlayed, // use calculated value
         updated_at: new Date().toISOString(),
         ...(isEditing ? {} : { created_by: user?.id })
       };
@@ -198,7 +201,7 @@ export function PlayerStatForm({ playerId, stat, onSuccess }: PlayerStatFormProp
           )}
         </div>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="matchesPlayed">Matches Played</Label>
             <Input
@@ -255,14 +258,11 @@ export function PlayerStatForm({ playerId, stat, onSuccess }: PlayerStatFormProp
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="minutesPlayed">Minutes Played</Label>
-            <Input
-              id="minutesPlayed"
-              type="number"
-              min="0"
-              value={minutesPlayed}
-              onChange={(e) => setMinutesPlayed(e.target.value)}
-            />
+            <Label>Minutes Played</Label>
+            <div className="px-3 py-2 border rounded bg-muted text-muted-foreground">
+              {minutesPlayed}
+            </div>
+            <p className="text-xs text-muted-foreground">Automatically calculated as 90 × matches played</p>
           </div>
         </div>
       </div>
@@ -274,4 +274,4 @@ export function PlayerStatForm({ playerId, stat, onSuccess }: PlayerStatFormProp
       </Button>
     </form>
   );
-} 
+}

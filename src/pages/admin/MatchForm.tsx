@@ -94,12 +94,13 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
         };
 
         // Send email using EmailJS
-        await emailjs.send(
-          emailConfig.serviceId,
-          emailConfig.templateId,
-          templateParams,
-          emailConfig.publicKey
-        );
+        
+        // await emailjs.send(
+        //   emailConfig.serviceId,
+        //   emailConfig.templateId,
+        //   templateParams,
+        //   emailConfig.publicKey
+        // );
 
         // Log notification in the database
         await supabase

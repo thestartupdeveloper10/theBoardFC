@@ -85,16 +85,16 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
     for (const player of players) {
       try {
         // Prepare template parameters
-        const templateParams = {
-          to_name: `${player.first_name} ${player.last_name}`,
-          to_email: player.email,
-          subject: subject,
-          message: message,
-          team_name: 'The Board FC'
-        };
+        // const templateParams = {
+        //   to_name: `${player.first_name} ${player.last_name}`,
+        //   to_email: player.email,
+        //   subject: subject,
+        //   message: message,
+        //   team_name: 'The Board FC'
+        // };
 
         // Send email using EmailJS
-        
+
         // await emailjs.send(
         //   emailConfig.serviceId,
         //   emailConfig.templateId,

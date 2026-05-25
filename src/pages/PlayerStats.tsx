@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -148,13 +148,37 @@ export default function PlayerStats() {
   // Fetch player data and stats using TanStack Query
   const { data: player, isLoading: playerLoading } = usePlayer(playerId || '');
   const { data: playerStats = [], isLoading: statsLoading } = usePlayerStats(playerId || '', selectedSeason);
-  const { data: seasons = [], isLoading: seasonsLoading } = useSeasons();
+  const { isLoading: seasonsLoading } = useSeasons();
   
   // Add teamStats query for goalkeepers to fetch clean sheets
   const { data: teamStats = [], isLoading: teamStatsLoading } = useTeamStats();
   
-  // Get most recent stats for current season display
-  const currentStats = playerStats?.length > 0 ? playerStats[0] : null;
+  // If "All Seasons" is selected, aggregate stats for the two seasons requested (2025-2026, 2026-2027).
+  // Otherwise pick the stats for the selected season (fallback to first available).
+  const currentStats = useMemo(() => {
+    if (!playerStats || playerStats.length === 0) return null;
+
+    if (selectedSeason === 'all') {
+      const seasonsToSum = ['2025-2026', '2026-2027'];
+      const filtered = playerStats.filter((s: any) => seasonsToSum.includes(s.season));
+      if (filtered.length === 0) return playerStats[0] || null;
+
+      const sum = (key: string) => filtered.reduce((acc, cur) => acc + (cur[key] || 0), 0);
+
+      return {
+        id: 'all',
+        season: 'All Seasons',
+        matches_played: sum('matches_played'),
+        goals: sum('goals'),
+        assists: sum('assists'),
+        minutes_played: sum('minutes_played'),
+        yellow_cards: sum('yellow_cards'),
+        red_cards: sum('red_cards'),
+      } as any;
+    }
+
+    return playerStats.find((s: any) => s.season === selectedSeason) || playerStats[0] || null;
+  }, [playerStats, selectedSeason]);
   
   // Get team clean sheets for goalkeepers
   const cleanSheets = player?.position === 'Goalkeeper' && teamStats.length > 0 
@@ -356,18 +380,17 @@ export default function PlayerStats() {
             animate={{ opacity: 1, x: 0 }}
           >
             <Select 
-              value={selectedSeason} 
+              value={selectedSeason}
               onValueChange={setSelectedSeason}
               disabled={seasonsLoading}
             >
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Season" />
+                <SelectValue placeholder="All Seasons" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Seasons</SelectItem>
-                {seasons.map(season => (
-                  <SelectItem key={season} value={season}>{season}</SelectItem>
-                ))}
+                <SelectItem value="2025-2026">2025-2026</SelectItem>
+                <SelectItem value="2026-2027">2026-2027</SelectItem>
               </SelectContent>
             </Select>
           </motion.div>
@@ -646,4 +669,4 @@ export default function PlayerStats() {
       </div>
     </div>
   );
-} 
+}

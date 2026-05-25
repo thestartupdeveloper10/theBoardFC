@@ -106,7 +106,7 @@ const PlayerCard = ({ player, onClick }: { player: Player, onClick: () => void }
       whileTap={{ scale: 0.98 }}
     >
       <Card 
-        className={`relative h-full overflow-hidden cursor-pointer backdrop-blur-sm border-2 ${positionStyle.border} bg-background/60 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-${positionStyle.text}/10`}
+        className={`relative h-full overflow-hidden cursor-pointer backdrop-blur-sm border-2 ${positionStyle.border} bg-background/60 rounded-xl transition-[box-shadow,border-color] duration-300 hover:shadow-xl hover:shadow-${positionStyle.text}/10`}
         onClick={onClick}
       >
         {/* Gradient Header */}
@@ -377,7 +377,7 @@ const StaffCard = ({ member }: { member: typeof staff[0] }) => (
     whileHover={{ y: -5, transition: { type: 'spring', stiffness: 300 } }}
     whileTap={{ scale: 0.98 }}
   >
-    <Card className="overflow-hidden transition-all duration-300 border-2 backdrop-blur-sm bg-background/60 border-primary/20 hover:shadow-xl hover:shadow-primary/10">
+    <Card className="overflow-hidden transition-[box-shadow,border-color] duration-300 border-2 backdrop-blur-sm bg-background/60 border-primary/20 hover:shadow-xl hover:shadow-primary/10">
       <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-primary to-primary-foreground opacity-80" />
       
       <div className="relative z-10 flex flex-col items-center px-6 pt-12 pb-6">

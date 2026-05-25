@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { format, parseISO,subHours } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -37,47 +37,21 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
       return;
     }
 
-    // Format match date for the message
-    const matchDate = parseISO(fixture.match_date);
-    const formattedDate = format(matchDate, 'EEEE, MMMM do, yyyy');
-    const formattedTime = format(subHours(matchDate, 3), 'h:mm a');
-    
     // Create notification message based on type
     let subject = '';
-    let message = '';
-    
+
     switch (notificationType) {
       case 'new':
         subject = `New Match Scheduled: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
-        message = `A new match has been scheduled for ${formattedDate} at ${formattedTime}. 
-                  We will be playing ${fixture.is_home_game ? 'at home' : 'away'} against ${fixture.opponent} 
-                  in ${fixture.competition} match at ${fixture.location}.`;
         break;
       case 'update':
         subject = `Match Update: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
-        message = `The match against ${fixture.opponent} has been updated. 
-                  It is now scheduled for ${formattedDate} at ${formattedTime}. 
-                  We will be playing ${fixture.is_home_game ? 'at home' : 'away'} 
-                  in the ${fixture.competition}.`;
         break;
       case 'completed':
         subject = `Match Result: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
-        const teamScore = fixture.is_home_game ? fixture.home_score : fixture.away_score;
-        const opponentScore = fixture.is_home_game ? fixture.away_score : fixture.home_score;
-        const result = teamScore > opponentScore ? 'won' : teamScore < opponentScore ? 'lost' : 'drew';
-        
-        message = `Our match against ${fixture.opponent} has been completed.
-                  Final score: The Board FC ${teamScore} - ${opponentScore} ${fixture.opponent}.
-                  We ${result} the match played on ${formattedDate}.
-                  ${fixture.notes ? `\n\nAdditional notes: ${fixture.notes}` : ''}
-                  
-                  Check the team website for upcoming fixtures!`;
         break;
       case 'cancel':
         subject = `Match Cancelled: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
-        message = `The match against ${fixture.opponent} that was scheduled for ${formattedDate} 
-                  has been ${fixture.status}. Further updates will be provided when available.
-                  ${fixture.notes ? `\n\nReason: ${fixture.notes}` : ''}`;
         break;
     }
 

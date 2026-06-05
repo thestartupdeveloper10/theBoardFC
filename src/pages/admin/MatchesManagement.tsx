@@ -33,7 +33,7 @@ export function MatchesManagement() {
       const { data, error } = await supabase
         .from('fixtures')
         .select('*')
-        .order('match_date', { ascending: true });
+        .order('match_date', { ascending: false });
       
       if (error) throw error;
       

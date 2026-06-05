@@ -9,7 +9,10 @@ export interface Fixture {
     home_score: number | null;
     away_score: number | null;
     status: string;
-    ticket_link?: string; // Consistently optional
+    ticket_link?: string;
     notes?: string;
     opponent_logo_url?: string;
+    match_poster_url?: string | null;
+    mvp_player_id?: string | null;
+    mvp_note?: string | null;
   }

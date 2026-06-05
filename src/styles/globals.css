@@ -73,6 +73,34 @@
   }
 }
  
+/* ── Home page semantic color tokens ────────────────────────────── */
+:root {
+  --hp-bg:            #f8fafc;
+  --hp-bg2:           #f1f5f9;
+  --hp-card:          #ffffff;
+  --hp-text:          #0f172a;
+  --hp-muted:         #475569;
+  --hp-faint:         #94a3b8;
+  --hp-border:        rgba(0,0,0,0.07);
+  --hp-border-strong: rgba(0,0,0,0.14);
+  --hp-surface:       rgba(0,0,0,0.03);
+  --hp-surface-hover: rgba(0,0,0,0.055);
+  --hp-divider:       rgba(0,0,0,0.07);
+}
+.dark {
+  --hp-bg:            #060914;
+  --hp-bg2:           #07080f;
+  --hp-card:          #0c1220;
+  --hp-text:          #ffffff;
+  --hp-muted:         rgba(255,255,255,0.48);
+  --hp-faint:         rgba(255,255,255,0.22);
+  --hp-border:        rgba(255,255,255,0.065);
+  --hp-border-strong: rgba(255,255,255,0.14);
+  --hp-surface:       rgba(255,255,255,0.02);
+  --hp-surface-hover: rgba(255,255,255,0.038);
+  --hp-divider:       rgba(255,255,255,0.08);
+}
+
 @layer base {
   * {
     @apply border-border;

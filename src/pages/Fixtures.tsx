@@ -340,7 +340,7 @@ export default function Fixtures() {
                   ) : (
                 <div className="space-y-4">
                       {groupedFixtures.upcoming
-                        .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime())
+                        .sort((a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime())
                         .map((fixture, index) => (
                     <motion.div
                             key={fixture.id}

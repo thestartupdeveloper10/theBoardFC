@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ImageUploader } from '@/components/image-uploader';
-// import emailjs from '@emailjs/browser';
-// import { emailConfig } from '@/config/emailjs';
+import emailjs from '@emailjs/browser';
+import { emailConfig } from '@/config/emailjs';
 import { Fixture } from '@/types/fixture';
-import { usePlayers } from '@/services/queries';
 
 
 interface MatchFormProps {
@@ -23,7 +22,6 @@ interface MatchFormProps {
   onSuccess: () => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'update' | 'cancel' | 'completed') {
   try {
     // Fetch all active players with email addresses
@@ -41,19 +39,25 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
 
     // Create notification message based on type
     let subject = '';
+    let message = '';
+    const matchInfo = `${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent} on ${new Date(fixture.match_date).toLocaleDateString()} at ${fixture.location}.`;
 
     switch (notificationType) {
       case 'new':
         subject = `New Match Scheduled: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
+        message = `A new match has been scheduled. ${matchInfo}`;
         break;
       case 'update':
         subject = `Match Update: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
+        message = `Details for an upcoming match have been updated. ${matchInfo}`;
         break;
       case 'completed':
         subject = `Match Result: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
+        message = `The match has ended. ${matchInfo} Final score: ${fixture.home_score} - ${fixture.away_score}.`;
         break;
       case 'cancel':
         subject = `Match Cancelled: ${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent}`;
+        message = `A match has been cancelled or postponed. ${matchInfo}`;
         break;
     }
 
@@ -61,22 +65,22 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
     for (const player of players) {
       try {
         // Prepare template parameters
-        // const templateParams = {
-        //   to_name: `${player.first_name} ${player.last_name}`,
-        //   to_email: player.email,
-        //   subject: subject,
-        //   message: message,
-        //   team_name: 'The Board FC'
-        // };
+        const templateParams = {
+          to_name: `${player.first_name} ${player.last_name}`,
+          to_email: player.email,
+          subject: subject,
+          message: message,
+          team_name: 'The Board FC'
+        };
 
         // Send email using EmailJS
 
-        // await emailjs.send(
-        //   emailConfig.serviceId,
-        //   emailConfig.templateId,
-        //   templateParams,
-        //   emailConfig.publicKey
-        // );
+        await emailjs.send(
+          emailConfig.serviceId,
+          emailConfig.templateId,
+          templateParams,
+          emailConfig.publicKey
+        );
 
         // Log notification in the database
         await supabase
@@ -104,13 +108,12 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
 export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { data: players = [] } = usePlayers();
-
+  
   // Email service paused — re-enable by un-commenting emailjs.init and sendNotificationEmails calls
-  // useEffect(() => {
-  //   emailjs.init(emailConfig.publicKey);
-  // }, []);
-
+  useEffect(() => {
+    emailjs.init(emailConfig.publicKey);
+  }, []);
+  
   const [matchDate, setMatchDate] = useState(fixture ? format(parseISO(fixture.match_date), "yyyy-MM-dd'T'HH:mm") : '');
   const [opponent, setOpponent] = useState(fixture?.opponent || '');
   const [location, setLocation] = useState(fixture?.location || '');
@@ -124,23 +127,26 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [opponentLogoUrl, setOpponentLogoUrl] = useState(fixture?.opponent_logo_url || '');
-  const [matchPosterUrl, setMatchPosterUrl] = useState(fixture?.match_poster_url || '');
-  const [mvpPlayerId, setMvpPlayerId] = useState(fixture?.mvp_player_id || '');
-  const [mvpNote, setMvpNote] = useState(fixture?.mvp_note || '');
   
   const isEditing = !!fixture;
   
-  // previousStatus tracked for email notifications — re-enable with email service
-  // const [previousStatus, setPreviousStatus] = useState(fixture?.status || 'upcoming');
-  // useEffect(() => { if (fixture) setPreviousStatus(fixture.status); }, [fixture]);
-
+  // Track previous status for cancellation notifications
+  const [previousStatus, setPreviousStatus] = useState(fixture?.status || 'upcoming');
+  
+  // Update previousStatus when fixture changes
+  useEffect(() => {
+    if (fixture) {
+      setPreviousStatus(fixture.status);
+    }
+  }, [fixture]);
+  
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     
     try {
-      const fixtureData: Record<string, any> = {
+      const fixtureData = {
         match_date: matchDate,
         opponent,
         location,
@@ -152,63 +158,64 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
         away_score: awayScore ? parseInt(awayScore, 10) : null,
         status,
         opponent_logo_url: opponentLogoUrl,
-        ...(isEditing ? {} : { created_by: user?.id }),
+        ...(isEditing ? {} : { created_by: user?.id })
       };
-
-      // These columns require the DB migration to exist.
-      // Only include them in the payload when they carry a value so the form
-      // doesn't break if the migration hasn't been run yet.
-      if (matchPosterUrl) fixtureData.match_poster_url = matchPosterUrl;
-      if (status === 'completed' && mvpPlayerId) {
-        fixtureData.mvp_player_id = mvpPlayerId;
-        fixtureData.mvp_note = mvpNote || null;
-      }
+      
+      let result;
       
       if (isEditing) {
         // Update existing fixture
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('fixtures')
           .update(fixtureData)
           .eq('id', fixture.id)
           .select()
           .single();
-
+          
         if (error) throw error;
+        result = data;
         
         toast({
           title: "Fixture updated",
           description: "The fixture has been updated successfully.",
         });
         
-        // Email notifications paused — re-enable when email service is restarted
-        // if (['postponed', 'canceled'].includes(status) && !['postponed', 'canceled'].includes(previousStatus)) {
-        //   await sendNotificationEmails(result, 'cancel');
-        // } else if (status === 'completed' && previousStatus !== 'completed' &&
-        //         homeScore !== '' && awayScore !== '') {
-        //   await sendNotificationEmails(result, 'completed');
-        // } else if (status !== previousStatus) {
-        //   await sendNotificationEmails(result, 'update');
-        // }
+        // Check if status changed to postponed or canceled
+        if (['postponed', 'canceled'].includes(status) && !['postponed', 'canceled'].includes(previousStatus)) {
+          // Send cancellation notifications
+          await sendNotificationEmails(result, 'cancel');
+        } 
+        // Check if match was marked as completed with scores
+        else if (status === 'completed' && previousStatus !== 'completed' && 
+                homeScore !== '' && awayScore !== '') {
+          // Send completion notification with scores
+          await sendNotificationEmails(result, 'completed');
+        }
+        // Send regular update notification for other changes
+        else if (status !== previousStatus) {
+          await sendNotificationEmails(result, 'update');
+        }
         
       } else {
         // Create new fixture
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('fixtures')
           .insert(fixtureData)
           .select()
           .single();
-
+          
         if (error) throw error;
+        result = data;
         
         toast({
           title: "Fixture created",
           description: "The new fixture has been created successfully.",
         });
         
-        // Email notifications paused
-        // if (!['postponed', 'canceled'].includes(status)) {
-        //   await sendNotificationEmails(result, 'new');
-        // }
+        // Send new fixture notifications (unless it's already marked cancelled)
+        if (!['postponed', 'canceled'].includes(status)) {
+          await sendNotificationEmails(result, 'new');
+        }
       }
       
       onSuccess();
@@ -388,62 +395,6 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
               />
             </div>
           </div>
-
-          {/* Match Poster Section */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Match Poster</h3>
-            <ImageUploader
-              currentImageUrl={matchPosterUrl}
-              onImageUploaded={setMatchPosterUrl}
-              folder="posters"
-              label="Match Poster (optional)"
-              showUrlInput={false}
-              deleteOldImage={true}
-            />
-            <p className="text-xs text-muted-foreground">
-              Upload a matchday poster — displayed as a full-width banner on the home page for upcoming matches.
-            </p>
-          </div>
-
-          {/* MVP Section — only shown for completed matches */}
-          {status === 'completed' && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">Match MVP</h3>
-              <div className="space-y-2">
-                <Label htmlFor="mvpPlayer">MVP Player (optional)</Label>
-                <Select
-                  value={mvpPlayerId || 'none'}
-                  onValueChange={(v) => setMvpPlayerId(v === 'none' ? '' : v)}
-                >
-                  <SelectTrigger id="mvpPlayer">
-                    <SelectValue placeholder="Select MVP player" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No MVP selected</SelectItem>
-                    {(players as any[])
-                      .filter((p) => p.status === 'active')
-                      .map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.first_name} {p.last_name}
-                          {p.player_number ? ` (#${p.player_number})` : ''}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {mvpPlayerId && (
-                <div className="space-y-2">
-                  <Label htmlFor="mvpNote">Performance Note (optional)</Label>
-                  <Input
-                    id="mvpNote"
-                    value={mvpNote}
-                    onChange={(e) => setMvpNote(e.target.value)}
-                    placeholder="e.g. Hat-trick & 2 assists"
-                  />
-                </div>
-              )}
-            </div>
-          )}
         </div>
         
         {/* Submit Button - Fixed at the bottom */}

@@ -15,16 +15,18 @@ import { ImageUploader } from '@/components/image-uploader';
 import emailjs from '@emailjs/browser';
 import { emailConfig } from '@/config/emailjs';
 import { Fixture } from '@/types/fixture';
-
+import { usePlayers } from '@/services/queries';
 
 interface MatchFormProps {
   fixture?: Fixture;
   onSuccess: () => void;
 }
 
-async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'update' | 'cancel' | 'completed') {
+async function sendNotificationEmails(
+  fixture: any,
+  notificationType: 'new' | 'update' | 'cancel' | 'completed'
+) {
   try {
-    // Fetch all active players with email addresses
     const { data: players, error: playersError } = await supabase
       .from('players')
       .select('id, first_name, last_name, email')
@@ -37,10 +39,10 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
       return;
     }
 
-    // Create notification message based on type
+    const matchInfo = `${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent} on ${new Date(fixture.match_date).toLocaleDateString()} at ${fixture.location}.`;
+
     let subject = '';
     let message = '';
-    const matchInfo = `${fixture.is_home_game ? 'Home' : 'Away'} vs ${fixture.opponent} on ${new Date(fixture.match_date).toLocaleDateString()} at ${fixture.location}.`;
 
     switch (notificationType) {
       case 'new':
@@ -61,19 +63,15 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
         break;
     }
 
-    // Send email to each player using EmailJS
     for (const player of players) {
       try {
-        // Prepare template parameters
         const templateParams = {
           to_name: `${player.first_name} ${player.last_name}`,
           to_email: player.email,
-          subject: subject,
-          message: message,
-          team_name: 'The Board FC'
+          subject,
+          message,
+          team_name: 'The Board FC',
         };
-
-        // Send email using EmailJS
 
         await emailjs.send(
           emailConfig.serviceId,
@@ -82,19 +80,15 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
           emailConfig.publicKey
         );
 
-        // Log notification in the database
-        await supabase
-          .from('notification_logs')
-          .insert({
-            player_id: player.id,
-            fixture_id: fixture.id,
-            notification_type: 'email',
-            subject,
-            sent_at: new Date().toISOString(),
-          });
+        await supabase.from('notification_logs').insert({
+          player_id: player.id,
+          fixture_id: fixture.id,
+          notification_type: 'email',
+          subject,
+          sent_at: new Date().toISOString(),
+        });
       } catch (emailError) {
         console.error(`Failed to send email to ${player.email}:`, emailError);
-        // Continue with next player even if one fails
       }
     }
 
@@ -108,13 +102,15 @@ async function sendNotificationEmails(fixture: any, notificationType: 'new' | 'u
 export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  
-  // Email service paused — re-enable by un-commenting emailjs.init and sendNotificationEmails calls
+  const { data: players = [] } = usePlayers();
+
   useEffect(() => {
     emailjs.init(emailConfig.publicKey);
   }, []);
-  
-  const [matchDate, setMatchDate] = useState(fixture ? format(parseISO(fixture.match_date), "yyyy-MM-dd'T'HH:mm") : '');
+
+  const [matchDate, setMatchDate] = useState(
+    fixture ? format(parseISO(fixture.match_date), "yyyy-MM-dd'T'HH:mm") : ''
+  );
   const [opponent, setOpponent] = useState(fixture?.opponent || '');
   const [location, setLocation] = useState(fixture?.location || '');
   const [isHomeGame, setIsHomeGame] = useState(fixture?.is_home_game ?? true);
@@ -127,26 +123,24 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [opponentLogoUrl, setOpponentLogoUrl] = useState(fixture?.opponent_logo_url || '');
-  
-  const isEditing = !!fixture;
-  
-  // Track previous status for cancellation notifications
+  const [matchPosterUrl, setMatchPosterUrl] = useState(fixture?.match_poster_url || '');
+  const [mvpPlayerId, setMvpPlayerId] = useState(fixture?.mvp_player_id || '');
+  const [mvpNote, setMvpNote] = useState(fixture?.mvp_note || '');
   const [previousStatus, setPreviousStatus] = useState(fixture?.status || 'upcoming');
-  
-  // Update previousStatus when fixture changes
+
+  const isEditing = !!fixture;
+
   useEffect(() => {
-    if (fixture) {
-      setPreviousStatus(fixture.status);
-    }
+    if (fixture) setPreviousStatus(fixture.status);
   }, [fixture]);
-  
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const fixtureData = {
+      const fixtureData: Record<string, any> = {
         match_date: matchDate,
         opponent,
         location,
@@ -158,66 +152,61 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
         away_score: awayScore ? parseInt(awayScore, 10) : null,
         status,
         opponent_logo_url: opponentLogoUrl,
-        ...(isEditing ? {} : { created_by: user?.id })
+        ...(isEditing ? {} : { created_by: user?.id }),
       };
-      
-      let result;
-      
+
+      // Only include new columns when they carry a value, so the form works
+      // before the DB migration has been applied.
+      if (matchPosterUrl) fixtureData.match_poster_url = matchPosterUrl;
+      if (status === 'completed' && mvpPlayerId) {
+        fixtureData.mvp_player_id = mvpPlayerId;
+        fixtureData.mvp_note = mvpNote || null;
+      }
+
+      let result: any;
+
       if (isEditing) {
-        // Update existing fixture
         const { data, error } = await supabase
           .from('fixtures')
           .update(fixtureData)
           .eq('id', fixture.id)
           .select()
           .single();
-          
+
         if (error) throw error;
         result = data;
-        
-        toast({
-          title: "Fixture updated",
-          description: "The fixture has been updated successfully.",
-        });
-        
-        // Check if status changed to postponed or canceled
+
+        toast({ title: 'Fixture updated', description: 'The fixture has been updated successfully.' });
+
         if (['postponed', 'canceled'].includes(status) && !['postponed', 'canceled'].includes(previousStatus)) {
-          // Send cancellation notifications
           await sendNotificationEmails(result, 'cancel');
-        } 
-        // Check if match was marked as completed with scores
-        else if (status === 'completed' && previousStatus !== 'completed' && 
-                homeScore !== '' && awayScore !== '') {
-          // Send completion notification with scores
+        } else if (
+          status === 'completed' &&
+          previousStatus !== 'completed' &&
+          homeScore !== '' &&
+          awayScore !== ''
+        ) {
           await sendNotificationEmails(result, 'completed');
-        }
-        // Send regular update notification for other changes
-        else if (status !== previousStatus) {
+        } else if (status !== previousStatus) {
           await sendNotificationEmails(result, 'update');
         }
-        
       } else {
-        // Create new fixture
         const { data, error } = await supabase
           .from('fixtures')
           .insert(fixtureData)
           .select()
           .single();
-          
+
         if (error) throw error;
         result = data;
-        
-        toast({
-          title: "Fixture created",
-          description: "The new fixture has been created successfully.",
-        });
-        
-        // Send new fixture notifications (unless it's already marked cancelled)
+
+        toast({ title: 'Fixture created', description: 'The new fixture has been created successfully.' });
+
         if (!['postponed', 'canceled'].includes(status)) {
           await sendNotificationEmails(result, 'new');
         }
       }
-      
+
       onSuccess();
     } catch (err: any) {
       console.error('Error saving fixture:', err);
@@ -226,7 +215,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
       setIsLoading(false);
     }
   }
-  
+
   return (
     <ScrollArea className="h-[calc(100vh-200px)] px-4 md:px-6">
       <form onSubmit={handleSubmit} className="max-w-2xl px-2 py-6 mx-auto space-y-6">
@@ -235,9 +224,9 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         <div className="space-y-6">
-          {/* Match Basic Details Section */}
+          {/* Match Details */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Match Details</h3>
             <div className="space-y-4">
@@ -251,7 +240,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="competition">Competition</Label>
                 <Select value={competition} onValueChange={setCompetition}>
@@ -269,7 +258,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
             </div>
           </div>
 
-          {/* Team Information Section */}
+          {/* Team Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Team Information</h3>
             <div className="space-y-4">
@@ -282,17 +271,16 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
                   required
                 />
               </div>
-              
+
               <div className="flex items-center py-2 space-x-2">
-                <Checkbox 
-                  id="isHomeGame" 
-                  checked={isHomeGame} 
+                <Checkbox
+                  id="isHomeGame"
+                  checked={isHomeGame}
                   onCheckedChange={(checked) => setIsHomeGame(checked === true)}
                 />
                 <Label htmlFor="isHomeGame">Home Game</Label>
               </div>
 
-              {/* Opponent Logo Upload */}
               <ImageUploader
                 currentImageUrl={opponentLogoUrl}
                 onImageUploaded={setOpponentLogoUrl}
@@ -320,7 +308,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="ticketLink">Ticket Link (Optional)</Label>
                 <Input
@@ -333,17 +321,13 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
             </div>
           </div>
 
-          {/* Match Status and Score Section */}
+          {/* Match Status & Score */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Match Status & Score</h3>
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="status">Match Status</Label>
-                <Select 
-                  value={status} 
-                  onValueChange={setStatus} 
-                  required
-                >
+                <Select value={status} onValueChange={setStatus} required>
                   <SelectTrigger id="status">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -355,7 +339,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="homeScore">Home Score</Label>
@@ -367,7 +351,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
                     min="0"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="awayScore">Away Score</Label>
                   <Input
@@ -382,7 +366,7 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
             </div>
           </div>
 
-          {/* Additional Information Section */}
+          {/* Additional Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Additional Information</h3>
             <div className="space-y-2">
@@ -395,17 +379,76 @@ export function MatchForm({ fixture, onSuccess }: MatchFormProps) {
               />
             </div>
           </div>
+
+          {/* Match Poster */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Match Poster</h3>
+            <ImageUploader
+              currentImageUrl={matchPosterUrl}
+              onImageUploaded={setMatchPosterUrl}
+              folder="posters"
+              label="Match Poster (optional)"
+              showUrlInput={false}
+              deleteOldImage={true}
+            />
+            <p className="text-xs text-muted-foreground">
+              Upload a matchday poster — displayed as a carousel on the home page.
+            </p>
+          </div>
+
+          {/* MVP — only for completed matches */}
+          {status === 'completed' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">Match MVP</h3>
+              <div className="space-y-2">
+                <Label htmlFor="mvpPlayer">MVP Player (optional)</Label>
+                <Select
+                  value={mvpPlayerId || 'none'}
+                  onValueChange={(v) => setMvpPlayerId(v === 'none' ? '' : v)}
+                >
+                  <SelectTrigger id="mvpPlayer">
+                    <SelectValue placeholder="Select MVP player" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No MVP selected</SelectItem>
+                    {(players as any[])
+                      .filter((p) => p.status === 'active')
+                      .map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.first_name} {p.last_name}
+                          {p.player_number ? ` (#${p.player_number})` : ''}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {mvpPlayerId && (
+                <div className="space-y-2">
+                  <Label htmlFor="mvpNote">Performance Note (optional)</Label>
+                  <Input
+                    id="mvpNote"
+                    value={mvpNote}
+                    onChange={(e) => setMvpNote(e.target.value)}
+                    placeholder="e.g. Hat-trick & 2 assists"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        
-        {/* Submit Button - Fixed at the bottom */}
+
         <div className="sticky bottom-0 pt-4 pb-2 bg-background/80 backdrop-blur-sm">
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading 
-              ? (isEditing ? 'Updating...' : 'Creating...') 
-              : (isEditing ? 'Update Fixture' : 'Create Fixture')}
+            {isLoading
+              ? isEditing
+                ? 'Updating...'
+                : 'Creating...'
+              : isEditing
+              ? 'Update Fixture'
+              : 'Create Fixture'}
           </Button>
         </div>
       </form>
     </ScrollArea>
   );
-} 
+}

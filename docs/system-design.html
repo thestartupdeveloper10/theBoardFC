@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>theBoard — System Design Documentation</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --primary:   #4CC7D2;
+      --secondary: #1A365D;
+      --accent:    #E63946;
+      --bg:        #0F172A;
+      --surface:   #1E293B;
+      --border:    #334155;
+      --text:      #E2E8F0;
+      --muted:     #94A3B8;
+      --success:   #22D3EE;
+      --warning:   #F59E0B;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── SIDEBAR NAV ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 260px;
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      z-index: 100;
+      padding: 24px 0;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sidebar-logo p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-section {
+      padding: 8px 20px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    .nav-link {
+      display: block;
+      padding: 7px 20px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .nav-link:hover {
+      background: rgba(76,199,210,0.08);
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-link .icon { margin-right: 8px; opacity: 0.7; }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      margin-left: 260px;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--secondary) 0%, #0D1B2A 40%, #0F172A 100%);
+      padding: 80px 60px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(76,199,210,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 40%;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(230,57,70,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(76,199,210,0.12);
+      border: 1px solid rgba(76,199,210,0.3);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--primary), #06B6D4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 600px;
+      margin-bottom: 36px;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-item .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    .meta-item .value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 2px;
+    }
+
+    .meta-item .value.primary { color: var(--primary); }
+    .meta-item .value.accent  { color: var(--accent); }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 60px 60px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section:last-child { border-bottom: none; }
+
+    .section-header {
+      margin-bottom: 40px;
+    }
+
+    .section-number {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 700px;
+    }
+
+    /* ── CARD GRID ── */
+    .card-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin: 28px 0;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .card .tag {
+      display: inline-block;
+      background: rgba(76,199,210,0.12);
+      color: var(--primary);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    /* ── DIAGRAM CONTAINER ── */
+    .diagram-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin: 28px 0;
+      overflow-x: auto;
+    }
+
+    .diagram-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .diagram-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .mermaid {
+      text-align: center;
+    }
+
+    /* ── TABLE ── */
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 20px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .doc-table thead th {
+      background: rgba(76,199,210,0.1);
+      color: var(--primary);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .doc-table tbody td {
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(51,65,85,0.5);
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    .doc-table tbody tr:last-child td { border-bottom: none; }
+
+    .doc-table tbody tr:hover td { background: rgba(76,199,210,0.04); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-primary { background: rgba(76,199,210,0.15); color: var(--primary); }
+    .badge-accent  { background: rgba(230,57,70,0.15);  color: var(--accent); }
+    .badge-warn    { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .badge-green   { background: rgba(34,211,238,0.12); color: #22D3EE; }
+
+    /* ── CODE ── */
+    pre {
+      background: #0D1B2A;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 20px 0;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+    }
+
+    code {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      background: rgba(76,199,210,0.1);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* ── CALLOUT ── */
+    .callout {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    .callout-info  { background: rgba(76,199,210,0.1); border-left: 3px solid var(--primary); }
+    .callout-warn  { background: rgba(245,158,11,0.1); border-left: 3px solid var(--warning); }
+    .callout-error { background: rgba(230,57,70,0.1);  border-left: 3px solid var(--accent); }
+
+    .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .callout-text p { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .callout-text strong { color: var(--text); }
+
+    /* ── TWO-COL ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 28px 0;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .hero { padding: 40px 24px; }
+      .section { padding: 40px 24px; }
+      .hero h1 { font-size: 32px; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    /* ── FLOW STEP ── */
+    .flow-steps {
+      counter-reset: step;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .step-num {
+      counter-increment: step;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(76,199,210,0.15);
+      border: 1px solid rgba(76,199,210,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .step-content h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .step-content p  { font-size: 13px; color: var(--muted); }
+
+    /* ── TECH STACK PILL ── */
+    .tech-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .pill {
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .pill-blue   { background: rgba(76,199,210,0.1);  color: var(--primary); border-color: rgba(76,199,210,0.3); }
+    .pill-red    { background: rgba(230,57,70,0.1);   color: var(--accent);  border-color: rgba(230,57,70,0.3); }
+    .pill-yellow { background: rgba(245,158,11,0.1);  color: var(--warning); border-color: rgba(245,158,11,0.3); }
+    .pill-green  { background: rgba(34,197,94,0.1);   color: #4ADE80;        border-color: rgba(34,197,94,0.3); }
+    .pill-purple { background: rgba(168,85,247,0.1);  color: #C084FC;        border-color: rgba(168,85,247,0.3); }
+    .pill-gray   { background: rgba(148,163,184,0.1); color: var(--muted);   border-color: rgba(148,163,184,0.3); }
+
+    /* Divider */
+    hr.fancy {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 32px 0;
+    }
+
+    h3 { font-size: 20px; font-weight: 700; margin: 28px 0 12px; }
+
+    ul.doc-list { padding-left: 20px; color: var(--muted); font-size: 14px; }
+    ul.doc-list li { margin: 6px 0; }
+    ul.doc-list li strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SIDEBAR NAVIGATION
+═══════════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h2>⚽ theBoard</h2>
+    <p>System Design Docs</p>
+  </div>
+
+  <p class="nav-section">Overview</p>
+  <a class="nav-link" href="#overview"><span class="icon">🏠</span>Project Overview</a>
+  <a class="nav-link" href="#tech-stack"><span class="icon">🔧</span>Tech Stack</a>
+
+  <p class="nav-section">High-Level Design</p>
+  <a class="nav-link" href="#hld-context"><span class="icon">🌐</span>System Context</a>
+  <a class="nav-link" href="#hld-containers"><span class="icon">📦</span>Container Diagram</a>
+  <a class="nav-link" href="#hld-data-flow"><span class="icon">↔️</span>Data Flow</a>
+
+  <p class="nav-section">Low-Level Design</p>
+  <a class="nav-link" href="#lld-components"><span class="icon">🧩</span>Component Tree</a>
+  <a class="nav-link" href="#lld-state"><span class="icon">💾</span>State Management</a>
+  <a class="nav-link" href="#lld-auth"><span class="icon">🔐</span>Auth Flow</a>
+  <a class="nav-link" href="#lld-api"><span class="icon">🔌</span>API Layer</a>
+  <a class="nav-link" href="#lld-db"><span class="icon">🗄️</span>Database Schema</a>
+  <a class="nav-link" href="#lld-routing"><span class="icon">🗺️</span>Routing</a>
+  <a class="nav-link" href="#lld-image"><span class="icon">🖼️</span>Image Upload</a>
+  <a class="nav-link" href="#lld-query"><span class="icon">⚡</span>Query Lifecycle</a>
+
+  <p class="nav-section">User Journeys</p>
+  <a class="nav-link" href="#journey-fan"><span class="icon">👤</span>Fan Journey</a>
+  <a class="nav-link" href="#journey-admin"><span class="icon">🛡️</span>Admin Journey</a>
+
+  <p class="nav-section">Reference</p>
+  <a class="nav-link" href="#routes-ref"><span class="icon">📋</span>Route Reference</a>
+  <a class="nav-link" href="#env-ref"><span class="icon">🔑</span>Environment Vars</a>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">⚡ Architecture Documentation v1.0</div>
+    <h1>theBoard<br/><span>System Design</span></h1>
+    <p>High-level and low-level architecture reference for theBoard — a full-stack football team management and fan engagement platform.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="label">Project Type</span>
+        <span class="value primary">React SPA + Supabase</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Architecture</span>
+        <span class="value">BFF-less JAMstack</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Auth Model</span>
+        <span class="value">Admin-gated RBAC</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Last Updated</span>
+        <span class="value accent">June 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       1. PROJECT OVERVIEW
+  ═════════════════════════════════════ -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <div class="section-number">Section 01</div>
+      <h2 class="section-title">Project Overview</h2>
+      <p class="section-desc">theBoard is a dual-audience web application serving both football fans (public) and club administrators (private). It manages players, fixtures, news, statistics, and fan engagement from a single codebase.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">⚽</div>
+        <h4>Fan Portal</h4>
+        <p>Public-facing pages for fixtures, team roster, player stats, news, and a fan zone.</p>
+        <span class="tag">Public</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">🛡️</div>
+        <h4>Admin Dashboard</h4>
+        <p>Protected CMS for managing players, matches, news, contacts, and team statistics.</p>
+        <span class="tag">Admin Only</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗄️</div>
+        <h4>Supabase Backend</h4>
+        <p>PostgreSQL database, row-level security, file storage, and built-in auth.</p>
+        <span class="tag">Backend-as-a-Service</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">📧</div>
+        <h4>EmailJS</h4>
+        <p>Transactional email delivery for contact-form notifications without a backend server.</p>
+        <span class="tag">External Service</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">💡</div>
+      <div class="callout-text">
+        <strong>JAMstack Architecture</strong>
+        <p>theBoard follows a BFF-less (Backend-for-Frontend-less) JAMstack pattern. The React SPA communicates directly with Supabase via its JavaScript client — there is no custom API server layer between the browser and the database.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       2. TECH STACK
+  ═════════════════════════════════════ -->
+  <section class="section" id="tech-stack">
+    <div class="section-header">
+      <div class="section-number">Section 02</div>
+      <h2 class="section-title">Technology Stack</h2>
+      <p class="section-desc">A modern React ecosystem optimised for developer experience, type safety, and runtime performance.</p>
+    </div>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Technology</th>
+          <th>Version</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-primary">UI Framework</span></td>
+          <td>React</td>
+          <td>18.2</td>
+          <td>Component-based rendering, hooks API</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-primary">Language</span></td>
+          <td>TypeScript</td>
+          <td>5.2</td>
+          <td>Static typing, compile-time safety</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-primary">Routing</span></td>
+          <td>React Router</td>
+          <td>6.22</td>
+          <td>Client-side navigation, nested routes</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-green">Data Fetching</span></td>
+          <td>TanStack Query (React Query)</td>
+          <td>5.20</td>
+          <td>Server state, caching, background refetch</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-green">Client State</span></td>
+          <td>React Context API</td>
+          <td>Built-in</td>
+          <td>Auth state (session, user, isAdmin)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-green">Client State</span></td>
+          <td>Zustand</td>
+          <td>4.5</td>
+          <td>Additional global client state (available)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-accent">Backend</span></td>
+          <td>Supabase</td>
+          <td>2.22</td>
+          <td>PostgreSQL, Auth, Storage, RLS policies</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-accent">Email</span></td>
+          <td>EmailJS</td>
+          <td>4.4</td>
+          <td>Client-side transactional email</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warn">Styling</span></td>
+          <td>Tailwind CSS</td>
+          <td>3.4</td>
+          <td>Utility-first CSS framework</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warn">Components</span></td>
+          <td>Shadcn UI / Radix UI</td>
+          <td>—</td>
+          <td>Accessible, unstyled primitives</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warn">Animation</span></td>
+          <td>Framer Motion</td>
+          <td>11.0</td>
+          <td>Declarative animations and transitions</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-purple">Forms</span></td>
+          <td>React Hook Form + Zod</td>
+          <td>7.50 / 3.22</td>
+          <td>Performant forms with schema validation</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gray">Build</span></td>
+          <td>Vite</td>
+          <td>5.1</td>
+          <td>HMR dev server, Rollup production bundler</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════
+       3. HLD — SYSTEM CONTEXT
+  ═════════════════════════════════════ -->
+  <section class="section" id="hld-context">
+    <div class="section-header">
+      <div class="section-number">Section 03 — High-Level Design</div>
+      <h2 class="section-title">System Context Diagram</h2>
+      <p class="section-desc">C4 Level 1 — shows theBoard system and all external users and systems it interacts with.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 1 · System Context (C4 L1)</div>
+      <div class="mermaid">
+graph TB
+    Fan["👤 Fan / Visitor\nPublic internet user"]
+    Admin["🛡️ Club Administrator\nManages content via\nprotected dashboard"]
+
+    subgraph SYSTEM["theBoard System"]
+        SPA["⚛️ React SPA\nVite · TypeScript\nHosted on CDN / Vercel"]
+    end
+
+    subgraph EXTERNAL["External Services"]
+        Supabase["🗄️ Supabase\nPostgreSQL · Auth\nStorage · RLS"]
+        EmailJS["📧 EmailJS\nEmail delivery\nfor contact form"]
+        CDN["🌐 Static CDN\nPublic images &\nbundled assets"]
+    end
+
+    Fan -->|"Browses fixtures,\nnews, player stats"| SPA
+    Admin -->|"Manages players,\nmatches, news"| SPA
+
+    SPA -->|"Auth · CRUD · Files\nvia supabase-js SDK"| Supabase
+    SPA -->|"Sends contact\nform emails"| EmailJS
+    SPA -->|"Loads static\nassets"| CDN
+    Supabase -->|"Public media URLs\nfor images"| SPA
+
+    style SYSTEM fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style EXTERNAL fill:#1E293B,stroke:#334155,color:#E2E8F0
+    style Fan fill:#0F172A,stroke:#4CC7D2,color:#E2E8F0
+    style Admin fill:#0F172A,stroke:#E63946,color:#E2E8F0
+    style SPA fill:#4CC7D2,stroke:#06B6D4,color:#0F172A
+    style Supabase fill:#2D3748,stroke:#4CC7D2,color:#E2E8F0
+    style EmailJS fill:#2D3748,stroke:#F59E0B,color:#E2E8F0
+    style CDN fill:#2D3748,stroke:#94A3B8,color:#E2E8F0
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       4. HLD — CONTAINER DIAGRAM
+  ═════════════════════════════════════ -->
+  <section class="section" id="hld-containers">
+    <div class="section-header">
+      <div class="section-number">Section 04 — High-Level Design</div>
+      <h2 class="section-title">Container Diagram</h2>
+      <p class="section-desc">C4 Level 2 — the major deployable units and how they communicate. Each container represents a separately runnable/deployable piece.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 2 · Container Diagram (C4 L2)</div>
+      <div class="mermaid">
+graph LR
+    subgraph BROWSER["🌐 Browser"]
+        direction TB
+        subgraph APP["React Application (SPA)"]
+            direction TB
+            Router["React Router v6\nClient-side navigation"]
+            Pages["Pages\nHome · Team · Fixtures\nNews · Contact · About\nFanZone · SignIn"]
+            AdminPages["Admin Pages\nDashboard · Player Mgmt\nMatch Mgmt · News Mgmt"]
+            Components["UI Components\nShadcn + Radix + Framer"]
+            Services["Services Layer\napi.ts · queries.ts\nmutations.ts"]
+            Auth["Auth Context\nsession · user · isAdmin"]
+            QueryClient["TanStack QueryClient\nServer state cache\n5 min stale time"]
+        end
+    end
+
+    subgraph SUPABASE["☁️ Supabase Cloud"]
+        SupaAuth["Auth Service\nJWT · Session\n1h expiry"]
+        SupaDB["PostgreSQL DB\nplayers · fixtures\nnews · contacts\nprofiles · stats"]
+        SupaStorage["Object Storage\nmedia/ bucket\nPlayer & news images"]
+        RLS["Row Level Security\nPolicies"]
+    end
+
+    subgraph EMAILJS["📧 EmailJS"]
+        Template["Email Template\nContact notifications"]
+    end
+
+    Router --> Pages
+    Router --> AdminPages
+    Pages --> Components
+    AdminPages --> Components
+    Pages --> Services
+    AdminPages --> Services
+    Services --> QueryClient
+    Services --> Auth
+    Auth -->|"JWT token"| SupaAuth
+    Services -->|"supabase-js SDK\nHTTPS"| SupaDB
+    Services -->|"supabase-js SDK\nHTTPS"| SupaStorage
+    SupaDB --- RLS
+    Services -->|"emailjs-browser\nHTTPS"| Template
+
+    style BROWSER fill:#0F172A,stroke:#334155,color:#E2E8F0
+    style APP fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style SUPABASE fill:#1E293B,stroke:#22D3EE,color:#E2E8F0
+    style EMAILJS fill:#1E293B,stroke:#F59E0B,color:#E2E8F0
+    style Router fill:#2D4A6E,stroke:#4CC7D2,color:#E2E8F0
+    style Auth fill:#2D3748,stroke:#E63946,color:#E2E8F0
+    style QueryClient fill:#2D3748,stroke:#4CC7D2,color:#E2E8F0
+    style RLS fill:#2D3748,stroke:#F59E0B,color:#E2E8F0
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-text">
+        <strong>No Custom API Server</strong>
+        <p>The SPA communicates directly with Supabase — there is no Express/Fastify/NestJS middleware layer. Security is enforced via Supabase Row Level Security (RLS) policies in the database, not application-level guards.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       5. HLD — DATA FLOW OVERVIEW
+  ═════════════════════════════════════ -->
+  <section class="section" id="hld-data-flow">
+    <div class="section-header">
+      <div class="section-number">Section 05 — High-Level Design</div>
+      <h2 class="section-title">System Data Flow</h2>
+      <p class="section-desc">How data moves across the system for read (query) and write (mutation) operations.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 3 · Read (Query) Data Flow</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant U as 👤 User / Browser
+    participant RQ as TanStack QueryClient
+    participant API as services/api.ts
+    participant SB as Supabase Client
+    participant DB as PostgreSQL
+
+    U->>RQ: useFixtures() hook mount
+    RQ->>RQ: Check cache (staleTime = 5 min)
+    alt Cache HIT & fresh
+        RQ-->>U: Return cached data instantly
+    else Cache MISS or stale
+        RQ->>API: Fetch fixtures
+        API->>SB: supabase.from('fixtures').select('*')
+        SB->>DB: SQL SELECT via REST API
+        DB-->>SB: Result rows
+        SB-->>API: data[], error
+        API-->>RQ: Formatted data
+        RQ->>RQ: Store in cache
+        RQ-->>U: Render with fresh data
+    end
+      </div>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 4 · Write (Mutation) Data Flow with Cache Invalidation</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant A as 🛡️ Admin User
+    participant Form as React Hook Form + Zod
+    participant MUT as useMutation Hook
+    participant API as services/api.ts
+    participant SB as Supabase
+    participant DB as PostgreSQL
+    participant RQ as QueryClient Cache
+
+    A->>Form: Submit player update
+    Form->>Form: Zod schema validation
+    alt Validation FAIL
+        Form-->>A: Show field errors (no network call)
+    else Validation PASS
+        Form->>MUT: mutate(playerData)
+        MUT->>API: playerApi.update(id, data)
+        API->>SB: supabase.from('players').update(data)
+        SB->>DB: SQL UPDATE
+        DB-->>SB: Updated row
+        SB-->>API: data, error
+        alt DB Error
+            API-->>MUT: Throw error
+            MUT-->>A: onError → toast notification
+        else Success
+            API-->>MUT: Updated player
+            MUT->>RQ: invalidateQueries(['players'])
+            RQ->>API: Refetch players list
+            API->>SB: supabase.from('players').select('*')
+            SB->>DB: SQL SELECT
+            DB-->>RQ: Fresh list
+            MUT-->>A: onSuccess → toast + close dialog
+        end
+    end
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       6. LLD — COMPONENT TREE
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-components">
+    <div class="section-header">
+      <div class="section-number">Section 06 — Low-Level Design</div>
+      <h2 class="section-title">Component Architecture</h2>
+      <p class="section-desc">Full component tree showing how the UI is decomposed from the root down to atomic UI elements.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 5 · Public Route Component Tree</div>
+      <div class="mermaid">
+graph TD
+    Root["main.tsx\nQueryClientProvider\nBrowserRouter"] --> AppComp
+
+    AppComp["App.tsx\nAuthProvider\nRouter\nToaster"] --> PublicLayout & AdminLayout
+
+    PublicLayout["PublicLayout\nHeader + Footer"] --> PublicPages
+
+    subgraph PublicPages["Public Pages"]
+        Home["Home.tsx\n- Hero (next match)\n- Upcoming fixtures\n- Latest news\n- Sponsor bar"]
+        Team["Team.tsx\n- Player grid\n- Staff section"]
+        PlayerStats["PlayerStats.tsx\n- Player profile\n- Season stats\n- Career stats"]
+        Fixtures["Fixtures.tsx\n- Tab: Upcoming / Results\n- Fixture card list"]
+        News["News.tsx\n- Article grid\n- Tag filter"]
+        NewsDetail["NewsDetail.tsx\n- Full article\n- Related news"]
+        Contact["Contact.tsx\n- Contact form\n- EmailJS send"]
+        About["About.tsx"]
+        FanZone["FanZone.tsx"]
+    end
+
+    AdminLayout["AdminLayout\nProtectedRoute\nAdmin sidebar nav"] --> AdminPages
+
+    subgraph AdminPages["Admin Pages"]
+        Dashboard["Dashboard.tsx\nTabbed dashboard"]
+        Dashboard --> PlayMgmt["PlayersManagement\n+ PlayerForm"]
+        Dashboard --> StatMgmt["PlayerStatsMgmt\n+ PlayerStatForm"]
+        Dashboard --> MatchMgmt["MatchesManagement\n+ MatchForm"]
+        Dashboard --> NewsMgmt["NewsManagement\n+ NewsForm"]
+        Dashboard --> TeamStats["TeamStatsMgmt"]
+        Dashboard --> Contacts["ContactList\n+ ContactDetail"]
+    end
+
+    subgraph SharedUI["Shared / UI Components"]
+        Header["Header.tsx"]
+        Footer["Footer.tsx"]
+        ImageUploader["image-uploader.tsx"]
+        Sponsors["Sponsers.tsx"]
+        ShadcnUI["Shadcn UI\nButton · Card · Dialog\nInput · Table · Tabs\nSelect · Sheet · Badge"]
+    end
+
+    style Root fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style AppComp fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style PublicLayout fill:#2D4A6E,stroke:#4CC7D2,color:#E2E8F0
+    style AdminLayout fill:#3D1F1F,stroke:#E63946,color:#E2E8F0
+    style SharedUI fill:#1E293B,stroke:#334155,color:#E2E8F0
+    style Dashboard fill:#3D1F1F,stroke:#E63946,color:#E2E8F0
+      </div>
+    </div>
+
+    <hr class="fancy" />
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 6 · Shared Services & Hooks Layer</div>
+      <div class="mermaid">
+graph LR
+    subgraph PAGES["Pages / Components"]
+        P1["Home"]
+        P2["Fixtures"]
+        P3["Team"]
+        P4["Admin Dashboard"]
+    end
+
+    subgraph HOOKS["Custom Query Hooks\nsrc/services/queries.ts"]
+        Q1["useFixtures()"]
+        Q2["usePlayers()"]
+        Q3["usePlayer(id)"]
+        Q4["usePlayerStats(id)"]
+        Q5["useSeasons()"]
+        Q6["useNewsArticles()"]
+        Q7["useTeamStats()"]
+    end
+
+    subgraph MUTATIONS["Mutation Hooks\nsrc/services/mutations.ts"]
+        M1["useCreatePlayer()"]
+        M2["useUpdatePlayer()"]
+        M3["useDeletePlayer()"]
+        M4["useUpsertFixture()"]
+        M5["useCreateNews()"]
+        M6["useUpsertTeamStats()"]
+    end
+
+    subgraph API["API Layer\nsrc/services/api.ts"]
+        A1["playerApi"]
+        A2["fixturesApi"]
+        A3["newsApi"]
+        A4["playerStatsApi"]
+        A5["teamStatsApi"]
+    end
+
+    subgraph LIB["lib/supabase.ts"]
+        SB["supabase client\ncreateClient()"]
+    end
+
+    P1 --> Q1 & Q6
+    P2 --> Q1
+    P3 --> Q2
+    P4 --> Q2 & Q4 & Q6 & M1 & M2 & M4
+
+    Q1 --> A2
+    Q2 --> A1
+    Q3 --> A1
+    Q4 --> A4
+    Q6 --> A3
+    M1 --> A1
+    M4 --> A2
+
+    A1 & A2 & A3 & A4 & A5 --> SB
+
+    style PAGES fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style HOOKS fill:#1E2D40,stroke:#22D3EE,color:#E2E8F0
+    style MUTATIONS fill:#2D1E2D,stroke:#C084FC,color:#E2E8F0
+    style API fill:#1E2D20,stroke:#4ADE80,color:#E2E8F0
+    style LIB fill:#2D2D1E,stroke:#F59E0B,color:#E2E8F0
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       7. LLD — STATE MANAGEMENT
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-state">
+    <div class="section-header">
+      <div class="section-number">Section 07 — Low-Level Design</div>
+      <h2 class="section-title">State Management Architecture</h2>
+      <p class="section-desc">theBoard uses a two-tier state model: React Context for auth (client state) and TanStack Query for all server data.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 7 · State Architecture Overview</div>
+      <div class="mermaid">
+graph TB
+    subgraph CLIENT_STATE["Client State (React Context)"]
+        AC["AuthContext\n────────────────\nsession: Session | null\nuser: User | null\nisAdmin: boolean\nisLoading: boolean\n────────────────\nsignIn(email, pw)\nsignOut()\nsignUp()"]
+    end
+
+    subgraph SERVER_STATE["Server / Remote State (TanStack Query)"]
+        QC["QueryClient\nstaleTime: 5 min\nrefetchOnWindowFocus: false\nretry: 1"]
+        QC --> FC["fixtures cache\nkey: ['fixtures']"]
+        QC --> PC["players cache\nkey: ['players']"]
+        QC --> NC["news cache\nkey: ['news']"]
+        QC --> SC["stats cache\nkey: ['player-stats', id]\nkey: ['team-stats']"]
+    end
+
+    subgraph LOCAL["Local / Ephemeral State"]
+        LS1["useState — modal open/close"]
+        LS2["useState — tab selection"]
+        LS3["useState — form fields (RHF)"]
+        LS4["useTheme — dark/light mode"]
+    end
+
+    AC -->|"isAdmin gate"| AdminComponents["Admin Components"]
+    QC -->|"data, isLoading,\nisError"| AllComponents["All Components"]
+
+    style CLIENT_STATE fill:#1A2535,stroke:#E63946,color:#E2E8F0
+    style SERVER_STATE fill:#1A2535,stroke:#4CC7D2,color:#E2E8F0
+    style LOCAL fill:#1E293B,stroke:#334155,color:#E2E8F0
+    style AC fill:#2D1E20,stroke:#E63946,color:#E2E8F0
+    style QC fill:#1E2D40,stroke:#4CC7D2,color:#E2E8F0
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h4>🔴 Auth Context — What it holds</h4>
+        <ul class="doc-list" style="margin-top:12px">
+          <li><strong>session</strong> — Supabase session object (JWT)</li>
+          <li><strong>user</strong> — Authenticated user metadata</li>
+          <li><strong>isAdmin</strong> — Role check from <code>profiles.role</code></li>
+          <li><strong>isLoading</strong> — Initial auth resolution state</li>
+        </ul>
+        <p style="margin-top:12px;font-size:13px;color:var(--muted)">Auto-logout fires after <strong>1 hour of inactivity</strong> tracked via DOM events (mousedown, scroll, keypress, touchstart).</p>
+      </div>
+      <div class="card">
+        <h4>🔵 QueryClient — Cache strategy</h4>
+        <ul class="doc-list" style="margin-top:12px">
+          <li><strong>staleTime: 5 min</strong> — No refetch for 5 minutes</li>
+          <li><strong>retry: 1</strong> — One retry on failure</li>
+          <li><strong>refetchOnWindowFocus: false</strong> — No aggressive refetch</li>
+          <li><strong>Cache invalidation</strong> — Triggered after every mutation via <code>invalidateQueries</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       8. LLD — AUTH FLOW
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-auth">
+    <div class="section-header">
+      <div class="section-number">Section 08 — Low-Level Design</div>
+      <h2 class="section-title">Authentication & Authorization Flow</h2>
+      <p class="section-desc">theBoard uses Supabase Auth with role-based access. Only admins can access protected routes.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 8 · Sign-In & Role Check Sequence</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant U as Admin User
+    participant SignIn as SignIn.tsx
+    participant AC as AuthContext
+    participant SB as Supabase Auth
+    participant DB as profiles table
+    participant Router as React Router
+
+    U->>SignIn: Enter email + password → Submit
+    SignIn->>AC: signIn(email, password)
+    AC->>SB: supabase.auth.signInWithPassword()
+    SB-->>AC: { session, user } or error
+
+    alt Auth Error
+        AC-->>SignIn: throw error
+        SignIn-->>U: Show error toast
+    else Auth Success
+        AC->>DB: SELECT role FROM profiles WHERE id = user.id
+        DB-->>AC: { role: 'admin' } or { role: 'player' }
+
+        alt Role != 'admin'
+            AC->>SB: supabase.auth.signOut()
+            AC-->>SignIn: throw "Admin access only"
+            SignIn-->>U: Show error toast
+        else Role == 'admin'
+            AC->>AC: Set session, user, isAdmin=true
+            AC->>AC: Start 1h inactivity timer
+            AC-->>Router: Navigate to /admin/dashboard
+        end
+    end
+      </div>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 9 · Protected Route Guard Logic</div>
+      <div class="mermaid">
+flowchart TD
+    Request["Route Request\n/admin/*"] --> Loading{isLoading?}
+    Loading -->|Yes| Spinner["Show Loading Spinner\nAwait auth resolution"]
+    Spinner --> Loading
+    Loading -->|No| AuthCheck{user exists?}
+    AuthCheck -->|No| SignInRedirect["Redirect to /sign-in"]
+    AuthCheck -->|Yes| AdminCheck{isAdmin?}
+    AdminCheck -->|No| PlayerRedirect["Redirect to /player/dashboard"]
+    AdminCheck -->|Yes| RenderRoute["Render Protected Admin Page"]
+
+    style Request fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style RenderRoute fill:#1A3A1A,stroke:#4ADE80,color:#E2E8F0
+    style SignInRedirect fill:#3A1A1A,stroke:#E63946,color:#E2E8F0
+    style PlayerRedirect fill:#3A1A1A,stroke:#F59E0B,color:#E2E8F0
+      </div>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 10 · Session Lifecycle & Auto-Logout</div>
+      <div class="mermaid">
+stateDiagram-v2
+    [*] --> Unauthenticated: App load
+
+    Unauthenticated --> Authenticating: signIn() called
+    Authenticating --> Authenticated: JWT + role = admin
+    Authenticating --> Unauthenticated: Auth error / wrong role
+
+    Authenticated --> Active: User activity detected
+    Active --> Idle: No activity
+    Idle --> Active: User moves / types / scrolls
+    Idle --> TimerRunning: Inactivity timer starts
+    TimerRunning --> Unauthenticated: 1 hour elapsed → signOut()
+    Active --> Unauthenticated: signOut() called
+    Authenticated --> Unauthenticated: signOut() called
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       9. LLD — API LAYER
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-api">
+    <div class="section-header">
+      <div class="section-number">Section 09 — Low-Level Design</div>
+      <h2 class="section-title">API Layer Architecture</h2>
+      <p class="section-desc">The service layer wraps the Supabase JS client in domain-specific API objects, providing a clean interface for React Query hooks.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 11 · API Layer Internal Structure</div>
+      <div class="mermaid">
+graph TB
+    subgraph SERVICE["src/services/api.ts"]
+        direction LR
+        subgraph playerApi
+            pa1["getAll()\n→ players[]"]
+            pa2["getById(id)\n→ player"]
+            pa3["create(data)\n→ player"]
+            pa4["update(id,data)\n→ player"]
+            pa5["delete(id)"]
+        end
+        subgraph fixturesApi
+            fa1["getAll()\n→ fixtures[]"]
+            fa2["getById(id)\n→ fixture"]
+            fa3["upsert(data)\n→ fixture"]
+            fa4["delete(id)"]
+        end
+        subgraph newsApi
+            na1["getAll()\n→ articles[]"]
+            na2["getById(id)\n→ article"]
+            na3["create(data)\n→ article"]
+            na4["update(id,data)\n→ article"]
+            na5["delete(id)"]
+        end
+        subgraph playerStatsApi
+            sa1["getByPlayer(id)\n→ stats[]"]
+            sa2["getSeasons()\n→ string[]"]
+            sa3["upsert(data)\n→ stats"]
+            sa4["delete(id)"]
+        end
+        subgraph teamStatsApi
+            ta1["getAll()\n→ stats[]"]
+            ta2["upsert(data)\n→ stats"]
+        end
+    end
+
+    SBClient["supabase client\nlib/supabase.ts\ncreateClient(URL, KEY)"]
+
+    playerApi --> SBClient
+    fixturesApi --> SBClient
+    newsApi --> SBClient
+    playerStatsApi --> SBClient
+    teamStatsApi --> SBClient
+
+    style SERVICE fill:#1A2D1A,stroke:#4ADE80,color:#E2E8F0
+    style SBClient fill:#1A2535,stroke:#4CC7D2,color:#E2E8F0
+      </div>
+    </div>
+
+    <h3>Supabase RLS — Security Model</h3>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:16px">Row Level Security policies in the database enforce what each user role can do, independent of the client application.</p>
+
+    <table class="doc-table">
+      <thead>
+        <tr><th>Table</th><th>Anonymous (Public)</th><th>Authenticated User</th><th>Admin Role</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>players</code></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-primary">FULL CRUD</span></td>
+        </tr>
+        <tr>
+          <td><code>fixtures</code></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-primary">FULL CRUD</span></td>
+        </tr>
+        <tr>
+          <td><code>news</code></td>
+          <td><span class="badge badge-green">READ (published)</span></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-primary">FULL CRUD</span></td>
+        </tr>
+        <tr>
+          <td><code>player_stats</code></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-primary">FULL CRUD</span></td>
+        </tr>
+        <tr>
+          <td><code>team_stats</code></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-green">READ</span></td>
+          <td><span class="badge badge-primary">FULL CRUD</span></td>
+        </tr>
+        <tr>
+          <td><code>contact</code></td>
+          <td><span class="badge badge-warn">INSERT only</span></td>
+          <td><span class="badge badge-warn">INSERT only</span></td>
+          <td><span class="badge badge-primary">READ + UPDATE</span></td>
+        </tr>
+        <tr>
+          <td><code>profiles</code></td>
+          <td><span class="badge badge-accent">NONE</span></td>
+          <td><span class="badge badge-green">READ own row</span></td>
+          <td><span class="badge badge-primary">READ all</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════
+       10. LLD — DATABASE SCHEMA
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-db">
+    <div class="section-header">
+      <div class="section-number">Section 10 — Low-Level Design</div>
+      <h2 class="section-title">Database Schema (ERD)</h2>
+      <p class="section-desc">PostgreSQL schema hosted on Supabase. All tables use UUID primary keys and include timestamp fields.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 12 · Entity Relationship Diagram</div>
+      <div class="mermaid">
+erDiagram
+    profiles {
+        uuid id PK
+        text role
+        int player_number
+        text position
+        timestamp created_at
+    }
+
+    players {
+        uuid id PK
+        text first_name
+        text last_name
+        text email
+        int player_number
+        text position
+        date birth_date
+        int height
+        int weight
+        text bio
+        text profile_image_url
+        text status
+        date joined_date
+        uuid created_by FK
+        timestamp created_at
+    }
+
+    player_stats {
+        uuid id PK
+        uuid player_id FK
+        text season
+        int goals
+        int assists
+        int appearances
+        int minutes_played
+        int yellow_cards
+        int red_cards
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    team_stats {
+        uuid id PK
+        text season
+        int wins
+        int draws
+        int losses
+        int goals_for
+        int goals_against
+        int clean_sheets
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    fixtures {
+        uuid id PK
+        timestamp match_date
+        text opponent
+        text competition
+        text location
+        bool is_home_game
+        int home_score
+        int away_score
+        text status
+        text ticket_link
+        text notes
+        text opponent_logo_url
+        text match_poster_url
+        uuid mvp_player_id FK
+        text mvp_note
+        timestamp created_at
+    }
+
+    news {
+        uuid id PK
+        text title
+        text summary
+        text content
+        text featured_image_url
+        bool is_published
+        timestamp publish_date
+        text[] tags
+        uuid created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    contact {
+        uuid id PK
+        text name
+        text email
+        text subject
+        text message
+        text status
+        timestamp created_at
+    }
+
+    players ||--o{ player_stats : "has many"
+    players ||--o{ fixtures : "MVP in"
+    profiles ||--o{ players : "created by"
+    profiles ||--o{ news : "created by"
+      </div>
+    </div>
+
+    <h3>Storage Buckets</h3>
+    <table class="doc-table">
+      <thead>
+        <tr><th>Bucket</th><th>Path Pattern</th><th>Access</th><th>Used For</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>media</code></td>
+          <td><code>/players/{filename}</code></td>
+          <td><span class="badge badge-green">Public</span></td>
+          <td>Player profile photos</td>
+        </tr>
+        <tr>
+          <td><code>media</code></td>
+          <td><code>/news/{filename}</code></td>
+          <td><span class="badge badge-green">Public</span></td>
+          <td>News article featured images</td>
+        </tr>
+        <tr>
+          <td><code>media</code></td>
+          <td><code>/fixtures/{filename}</code></td>
+          <td><span class="badge badge-green">Public</span></td>
+          <td>Match posters & opponent logos</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════
+       11. LLD — ROUTING
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-routing">
+    <div class="section-header">
+      <div class="section-number">Section 11 — Low-Level Design</div>
+      <h2 class="section-title">Routing Architecture</h2>
+      <p class="section-desc">React Router v6 with a two-tier layout system: public routes wrapped in Header+Footer, admin routes behind ProtectedRoute.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 13 · Route Tree</div>
+      <div class="mermaid">
+graph TD
+    ROOT["/ (Root)\nApp.tsx"] --> PUB_LAYOUT & ADMIN_GUARD
+
+    subgraph PUB_LAYOUT["Public Layout (Header + Footer)"]
+        direction TB
+        R1["/  →  Home.tsx"]
+        R2["/team  →  Team.tsx"]
+        R3["/player/:playerId  →  PlayerStats.tsx"]
+        R4["/fixtures  →  Fixtures.tsx"]
+        R5["/news  →  News.tsx"]
+        R6["/news/:id  →  NewsDetail.tsx"]
+        R7["/contact  →  Contact.tsx"]
+        R8["/about  →  About.tsx"]
+        R9["/fanzone  →  FanZone.tsx"]
+        R10["/sign-in  →  SignIn.tsx"]
+        R11["*  →  NotFound 404"]
+    end
+
+    subgraph ADMIN_GUARD["ProtectedRoute (Admin Only)"]
+        direction TB
+        AR1["/admin/dashboard\n?tab=players\n?tab=player_stats\n?tab=matches\n?tab=news\n?tab=team_stats\n?tab=contacts\n?tab=settings"]
+        AR2["/admin/players/:playerId/stats"]
+        AR3["/admin/news/:id"]
+    end
+
+    style ROOT fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style PUB_LAYOUT fill:#1A2D1A,stroke:#4ADE80,color:#E2E8F0
+    style ADMIN_GUARD fill:#3D1F1F,stroke:#E63946,color:#E2E8F0
+    style AR1 fill:#2D1E1E,stroke:#E63946,color:#E2E8F0
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       12. LLD — IMAGE UPLOAD FLOW
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-image">
+    <div class="section-header">
+      <div class="section-number">Section 12 — Low-Level Design</div>
+      <h2 class="section-title">Image Upload Flow</h2>
+      <p class="section-desc">The ImageUploader component handles the full lifecycle: preview → upload → delete old → store URL in database.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 14 · Image Upload Sequence</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant U as Admin User
+    participant IU as ImageUploader.tsx
+    participant SB as Supabase Storage (media/)
+    participant Form as Parent Form
+
+    U->>IU: Select file via file input
+    IU->>IU: FileReader.readAsDataURL()\nGenerate local preview URL
+    IU-->>U: Show preview image
+    U->>IU: Confirm upload
+
+    IU->>IU: Generate unique filename\nuuid + extension
+
+    alt Existing image URL present
+        IU->>SB: storage.remove([oldPath])
+        SB-->>IU: Old file deleted
+    end
+
+    IU->>SB: storage.upload(path, file)
+    SB-->>IU: { data, error }
+
+    alt Upload Error
+        IU-->>U: Show error toast
+    else Upload Success
+        IU->>SB: storage.getPublicUrl(path)
+        SB-->>IU: { publicUrl }
+        IU->>Form: onUpload(publicUrl)
+        Form->>Form: Set image_url field
+        IU-->>U: Show success state
+    end
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       13. LLD — QUERY LIFECYCLE
+  ═════════════════════════════════════ -->
+  <section class="section" id="lld-query">
+    <div class="section-header">
+      <div class="section-number">Section 13 — Low-Level Design</div>
+      <h2 class="section-title">React Query Cache Lifecycle</h2>
+      <p class="section-desc">Understanding how TanStack Query manages data freshness across the application.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 15 · TanStack Query Cache State Machine</div>
+      <div class="mermaid">
+stateDiagram-v2
+    [*] --> NoData: Component mounts\n(first time)
+
+    NoData --> Loading: Fetch triggered
+    Loading --> Fresh: Fetch success\n(data cached)
+    Loading --> Error: Network or DB error
+
+    Fresh --> Fresh: Data accessed\nwithin 5 min staleTime
+    Fresh --> Stale: staleTime (5 min) elapsed
+
+    Stale --> Loading: Component remounts\nor focus event
+    Stale --> Loading: invalidateQueries()\ncalled after mutation
+
+    Error --> Loading: Retry (max 1)
+    Error --> [*]: Component unmount
+
+    Fresh --> [*]: Component unmount\n(data remains in cache for gcTime)
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h4>⚡ Query Keys Structure</h4>
+        <pre style="margin:0;font-size:12px"><code>['fixtures']          → all fixtures
+['players']           → all players
+['player', id]        → single player
+['player-stats', id]  → player stats
+['seasons']           → distinct seasons
+['news']              → all articles
+['news', id]          → single article
+['team-stats']        → team season stats</code></pre>
+      </div>
+      <div class="card">
+        <h4>🔄 Mutation Invalidation Map</h4>
+        <pre style="margin:0;font-size:12px"><code>createPlayer()  → invalidate ['players']
+updatePlayer()  → invalidate ['players']
+                            ['player', id]
+deletePlayer()  → invalidate ['players']
+upsertFixture() → invalidate ['fixtures']
+createNews()    → invalidate ['news']
+upsertStats()   → invalidate ['player-stats', id]
+                            ['seasons']</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       14. USER JOURNEY — FAN
+  ═════════════════════════════════════ -->
+  <section class="section" id="journey-fan">
+    <div class="section-header">
+      <div class="section-number">Section 14 — User Journeys</div>
+      <h2 class="section-title">Fan User Journey</h2>
+      <p class="section-desc">End-to-end experience of a public visitor navigating theBoard fan-facing pages.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 16 · Fan Journey Flow</div>
+      <div class="mermaid">
+flowchart TD
+    A["🌐 Visit theBoard URL"] --> B["Home Page\n- Hero: next match\n- Latest news\n- Upcoming fixtures\n- Sponsor marquee"]
+
+    B --> C1["→ Click 'View Team'"]
+    B --> C2["→ Click 'Fixtures'"]
+    B --> C3["→ Click news article"]
+    B --> C4["→ Contact link"]
+
+    C1 --> D1["Team Page\n- Player grid with photos\n- Filter by position\n- Staff section"]
+    D1 --> E1["→ Click player card"]
+    E1 --> F1["Player Stats Page\n- Profile card\n- Season stats table\n- Career overview"]
+
+    C2 --> D2["Fixtures Page\n- Tab: Upcoming / Results\n- Competition filter\n- Score, venue, date"]
+    D2 --> E2{"Result?"}
+    E2 -->|Yes| F2["Match result card\nMVP display\nMatch poster"]
+    E2 -->|No| G2["Upcoming match\nTicket link\nCountdown"]
+
+    C3 --> D3["News Detail Page\n- Full article\n- Tags\n- Related articles"]
+
+    C4 --> D4["Contact Page\n- Form: name, email\n  subject, message\n- Submit → Supabase DB\n- EmailJS notification"]
+    D4 --> E4["Success toast\nMessage saved"]
+
+    style A fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style B fill:#1A365D,stroke:#4CC7D2,color:#E2E8F0
+    style D4 fill:#1A2D1A,stroke:#4ADE80,color:#E2E8F0
+    style E4 fill:#1A2D1A,stroke:#4ADE80,color:#E2E8F0
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       15. USER JOURNEY — ADMIN
+  ═════════════════════════════════════ -->
+  <section class="section" id="journey-admin">
+    <div class="section-header">
+      <div class="section-number">Section 15 — User Journeys</div>
+      <h2 class="section-title">Admin User Journey</h2>
+      <p class="section-desc">Complete workflow for a club administrator managing content via the protected dashboard.</p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">Figure 17 · Admin Journey — Content Management</div>
+      <div class="mermaid">
+flowchart TD
+    A["🛡️ Navigate to /sign-in"] --> B["Enter email + password"]
+    B --> C{Auth check}
+    C -->|Fail| B
+    C -->|"Admin role confirmed"| D["Admin Dashboard\n/admin/dashboard"]
+
+    D --> T1["Tab: Players\n?tab=players"]
+    D --> T2["Tab: Matches\n?tab=matches"]
+    D --> T3["Tab: News\n?tab=news"]
+    D --> T4["Tab: Stats\n?tab=player_stats"]
+    D --> T5["Tab: Contacts\n?tab=contacts"]
+
+    subgraph PLAYERS["Player Management"]
+        T1 --> P1["View players table"]
+        P1 --> P2["+ Add Player\nOpen dialog form"]
+        P1 --> P3["✏️ Edit Player"]
+        P1 --> P4["🗑️ Delete Player"]
+        P2 --> P5["Fill form + upload photo\nZod validation"]
+        P5 --> P6["Submit → playerApi.create()\nCache invalidated"]
+        P3 --> P5
+    end
+
+    subgraph MATCHES["Match Management"]
+        T2 --> M1["View fixtures list"]
+        M1 --> M2["+ Add Match\nMatchForm dialog"]
+        M1 --> M3["✏️ Edit Match\nUpdate scores/MVP"]
+        M2 --> M4["Upload poster\nSet opponent logo\nZod validate"]
+        M4 --> M5["Submit → fixturesApi.upsert()\nCache invalidated"]
+        M3 --> M4
+    end
+
+    subgraph CONTACTS["Contact Inbox"]
+        T5 --> C1["View unread messages"]
+        C1 --> C2["Open message detail"]
+        C2 --> C3["Mark as read/replied"]
+    end
+
+    style D fill:#3D1F1F,stroke:#E63946,color:#E2E8F0
+    style PLAYERS fill:#1A2D1A,stroke:#4ADE80,color:#E2E8F0
+    style MATCHES fill:#1A2535,stroke:#4CC7D2,color:#E2E8F0
+    style CONTACTS fill:#2D2515,stroke:#F59E0B,color:#E2E8F0
+      </div>
+    </div>
+
+    <div class="flow-steps" style="margin-top:28px">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Authenticate at /sign-in</h4>
+          <p>Email + password validated against Supabase Auth. Only <code>profiles.role = 'admin'</code> gains access.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Navigate Dashboard Tabs</h4>
+          <p>Each tab is a query param (<code>?tab=players</code>) preserving URL state. Each section lazy-loads its data via React Query.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Open Modal Form (Add / Edit)</h4>
+          <p>Shadcn Dialog component with React Hook Form inside. Zod schema validates before any network request is made.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Upload Image (optional)</h4>
+          <p>ImageUploader uploads to Supabase Storage <code>media/</code> bucket, deletes the old image if present, and returns the new public URL into the form field.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Submit → Mutation → Cache Invalidation</h4>
+          <p>TanStack mutation calls the API layer → Supabase → success triggers <code>invalidateQueries</code> → UI auto-refreshes with fresh data. Toast notification confirms the action.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       16. ROUTE REFERENCE
+  ═════════════════════════════════════ -->
+  <section class="section" id="routes-ref">
+    <div class="section-header">
+      <div class="section-number">Section 16 — Reference</div>
+      <h2 class="section-title">Route Reference</h2>
+    </div>
+    <table class="doc-table">
+      <thead>
+        <tr><th>Path</th><th>Component</th><th>Access</th><th>Data Sources</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>/</code></td><td>Home.tsx</td><td><span class="badge badge-green">Public</span></td><td>fixtures, news</td></tr>
+        <tr><td><code>/team</code></td><td>Team.tsx</td><td><span class="badge badge-green">Public</span></td><td>players</td></tr>
+        <tr><td><code>/player/:id</code></td><td>PlayerStats.tsx</td><td><span class="badge badge-green">Public</span></td><td>player, player_stats</td></tr>
+        <tr><td><code>/fixtures</code></td><td>Fixtures.tsx</td><td><span class="badge badge-green">Public</span></td><td>fixtures</td></tr>
+        <tr><td><code>/news</code></td><td>News.tsx</td><td><span class="badge badge-green">Public</span></td><td>news</td></tr>
+        <tr><td><code>/news/:id</code></td><td>NewsDetail.tsx</td><td><span class="badge badge-green">Public</span></td><td>news (single)</td></tr>
+        <tr><td><code>/contact</code></td><td>Contact.tsx</td><td><span class="badge badge-green">Public</span></td><td>contact (write)</td></tr>
+        <tr><td><code>/about</code></td><td>About.tsx</td><td><span class="badge badge-green">Public</span></td><td>Static</td></tr>
+        <tr><td><code>/fanzone</code></td><td>FanZone.tsx</td><td><span class="badge badge-green">Public</span></td><td>Static</td></tr>
+        <tr><td><code>/sign-in</code></td><td>SignIn.tsx</td><td><span class="badge badge-green">Public</span></td><td>Supabase Auth</td></tr>
+        <tr><td><code>/admin/dashboard</code></td><td>Dashboard.tsx</td><td><span class="badge badge-accent">Admin</span></td><td>All tables</td></tr>
+        <tr><td><code>/admin/players/:id/stats</code></td><td>PlayerStatsManagement.tsx</td><td><span class="badge badge-accent">Admin</span></td><td>player_stats</td></tr>
+        <tr><td><code>/admin/news/:id</code></td><td>admin/NewsDetail.tsx</td><td><span class="badge badge-accent">Admin</span></td><td>news</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════
+       17. ENV REFERENCE
+  ═════════════════════════════════════ -->
+  <section class="section" id="env-ref">
+    <div class="section-header">
+      <div class="section-number">Section 17 — Reference</div>
+      <h2 class="section-title">Environment Variables</h2>
+    </div>
+
+    <table class="doc-table">
+      <thead>
+        <tr><th>Variable</th><th>Required</th><th>Used By</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>VITE_SUPABASE_URL</code></td>
+          <td><span class="badge badge-accent">Required</span></td>
+          <td>lib/supabase.ts</td>
+          <td>Supabase project API URL</td>
+        </tr>
+        <tr>
+          <td><code>VITE_SUPABASE_ANON_KEY</code></td>
+          <td><span class="badge badge-accent">Required</span></td>
+          <td>lib/supabase.ts</td>
+          <td>Supabase anon/public key (safe to expose)</td>
+        </tr>
+        <tr>
+          <td><code>VITE_SERVICE_ID</code></td>
+          <td><span class="badge badge-warn">Optional</span></td>
+          <td>config/emailjs.ts</td>
+          <td>EmailJS service identifier</td>
+        </tr>
+        <tr>
+          <td><code>VITE_TEMPLATE_ID</code></td>
+          <td><span class="badge badge-warn">Optional</span></td>
+          <td>config/emailjs.ts</td>
+          <td>EmailJS email template ID</td>
+        </tr>
+        <tr>
+          <td><code>VITE_USER_ID</code></td>
+          <td><span class="badge badge-warn">Optional</span></td>
+          <td>config/emailjs.ts</td>
+          <td>EmailJS public key</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🔒</div>
+      <div class="callout-text">
+        <strong>Security Note</strong>
+        <p>All <code>VITE_*</code> variables are exposed to the browser bundle at build time. The Supabase anon key is safe to expose — it is public by design. Real security is enforced via Row Level Security (RLS) policies in PostgreSQL, not by keeping the key secret.</p>
+      </div>
+    </div>
+
+    <hr class="fancy" />
+
+    <h3>Tech Stack Summary</h3>
+    <div class="tech-pills">
+      <span class="pill pill-blue">React 18</span>
+      <span class="pill pill-blue">TypeScript 5</span>
+      <span class="pill pill-blue">React Router 6</span>
+      <span class="pill pill-green">TanStack Query 5</span>
+      <span class="pill pill-green">Zustand 4</span>
+      <span class="pill pill-red">Supabase</span>
+      <span class="pill pill-yellow">Tailwind CSS 3</span>
+      <span class="pill pill-yellow">Shadcn UI</span>
+      <span class="pill pill-yellow">Framer Motion</span>
+      <span class="pill pill-purple">React Hook Form</span>
+      <span class="pill pill-purple">Zod</span>
+      <span class="pill pill-gray">Vite 5</span>
+      <span class="pill pill-gray">EmailJS</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div style="background:var(--surface);border-top:1px solid var(--border);padding:24px 60px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)">
+    <span>⚽ theBoard System Design Documentation</span>
+    <span>Generated June 2026 · v1.0</span>
+  </div>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background: '#1E293B',
+      primaryColor: '#1A365D',
+      primaryTextColor: '#E2E8F0',
+      primaryBorderColor: '#4CC7D2',
+      lineColor: '#4CC7D2',
+      secondaryColor: '#0F172A',
+      tertiaryColor: '#334155',
+      edgeLabelBackground: '#1E293B',
+      nodeTextColor: '#E2E8F0',
+      mainBkg: '#1E293B',
+      nodeBorder: '#4CC7D2',
+      clusterBkg: '#0F172A',
+      clusterBorder: '#334155',
+      titleColor: '#E2E8F0',
+      actorBkg: '#1A365D',
+      actorBorder: '#4CC7D2',
+      actorTextColor: '#E2E8F0',
+      actorLineColor: '#4CC7D2',
+      signalColor: '#4CC7D2',
+      signalTextColor: '#E2E8F0',
+      labelBoxBkgColor: '#1E293B',
+      labelBoxBorderColor: '#334155',
+      labelTextColor: '#E2E8F0',
+      loopTextColor: '#E2E8F0',
+      noteBorderColor: '#F59E0B',
+      noteBkgColor: '#2D2515',
+      noteTextColor: '#E2E8F0',
+      activationBorderColor: '#E63946',
+      activationBkgColor: '#3D1F1F',
+      sequenceNumberColor: '#0F172A',
+      fontFamily: 'Segoe UI, system-ui, sans-serif',
+      fontSize: '14px',
+    },
+    flowchart: { curve: 'basis', htmlLabels: true },
+    sequence: { mirrorActors: false, messageAlign: 'center' },
+    er: { layoutDirection: 'TB', minEntityWidth: 100 },
+  });
+</script>
+</body>
+</html>
